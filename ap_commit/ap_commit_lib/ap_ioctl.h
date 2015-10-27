@@ -534,10 +534,10 @@ enum ieee80211_opmode
 struct ieee80211_clone_params
 {
 	char		icp_name[IFNAMSIZ];	/* device name */
-	u_int16_t	icp_opmode;		    /* operating mode */
-	u_int16_t	icp_flags;		    /* see below */
-    u_int8_t    icp_bssid[IEEE80211_ADDR_LEN];    /* optional mac/bssid address */
-    u_int8_t    icp_mataddr[IEEE80211_ADDR_LEN];  /* optional MAT address */
+	uint16_t	icp_opmode;		    /* operating mode */
+	uint16_t	icp_flags;		    /* see below */
+    uint8_t    icp_bssid[IEEE80211_ADDR_LEN];    /* optional mac/bssid address */
+    uint8_t    icp_mataddr[IEEE80211_ADDR_LEN];  /* optional MAT address */
 };
 
 
