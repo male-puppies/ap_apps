@@ -1,0 +1,111 @@
+event.lo: event.c \
+ /opt/ap_build/buildroot/host/usr/lib/gcc/mips-buildroot-linux-uclibc/4.5.4/include/stddef.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/stdlib.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/features.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/uClibc_config.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/cdefs.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/types.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/types.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/wordsize.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/typesizes.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/pthreadtypes.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/endian.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/endian.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/byteswap.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/byteswap.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/byteswap-common.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sgidefs.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/time.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/select.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/select.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigset.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/time.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/sysmacros.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/alloca.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/assert.h \
+ event.h ev.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/signal.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/signum.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/siginfo.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigaction.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigcontext.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigstack.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigthread.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/stat.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/stat.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/uClibc_clk_tck.h \
+ /opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/time.h
+
+/opt/ap_build/buildroot/host/usr/lib/gcc/mips-buildroot-linux-uclibc/4.5.4/include/stddef.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/stdlib.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/features.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/uClibc_config.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/cdefs.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/types.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/types.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/wordsize.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/typesizes.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/pthreadtypes.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/endian.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/endian.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/byteswap.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/byteswap.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/byteswap-common.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sgidefs.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/time.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/select.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/select.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigset.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/time.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/sysmacros.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/alloca.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/assert.h:
+
+event.h:
+
+ev.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/signal.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/signum.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/siginfo.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigaction.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigcontext.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigstack.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/sigthread.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/stat.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/stat.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/bits/uClibc_clk_tck.h:
+
+/opt/ap_build/buildroot/host/usr/mips-buildroot-linux-uclibc/sysroot/usr/include/sys/time.h:
