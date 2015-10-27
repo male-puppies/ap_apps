@@ -233,7 +233,7 @@ static int l_set_vap_info(lua_State *L, void *param) {
 	
 	ugw_ext_vap_info_t st;
 	const char *ifname = lua_tostring(L, 2);
-	st.wlan_id = (u_int32_t)lua_tointeger(L, 3);
+	st.wlan_id = (uint32_t)lua_tointeger(L, 3);
 	
 	int ret = set_vap_info(sock, ifname, &st);
 	CHK_RET(ret, mode_ioctl); 
@@ -276,7 +276,7 @@ static int l_vap_add_acl_mac(lua_State *L, void *param) {
 	ugw_sta_acl_mac_t st;
 	
 	const char *ifname = lua_tostring(L, 2);
-	st.seconds = (u_int32_t)lua_tointeger(L, 4);
+	st.seconds = (uint32_t)lua_tointeger(L, 4);
 	
 	// TODO unsigned char ?
 	const char *mac = lua_tostring(L, 3);

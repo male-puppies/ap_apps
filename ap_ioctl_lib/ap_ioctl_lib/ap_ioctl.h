@@ -813,19 +813,19 @@ enum ieee80211_opmode
 struct ieee80211_clone_params
 {
 	char		icp_name[IFNAMSIZ];	/* device name */
-	u_int16_t	icp_opmode;		    /* operating mode */
-	u_int16_t	icp_flags;		    /* see below */
-    u_int8_t    icp_bssid[IEEE80211_ADDR_LEN];    /* optional mac/bssid address */
-    u_int8_t    icp_mataddr[IEEE80211_ADDR_LEN];  /* optional MAT address */
+	uint16_t	icp_opmode;		    /* operating mode */
+	uint16_t	icp_flags;		    /* see below */
+    uint8_t    icp_bssid[IEEE80211_ADDR_LEN];    /* optional mac/bssid address */
+    uint8_t    icp_mataddr[IEEE80211_ADDR_LEN];  /* optional MAT address */
 };
 
 
 typedef struct ifdata_tlv_
 {
-    u_int32_t    cmd;
-    u_int32_t    len;
-    u_int8_t     buf[IFDATA_TLV_BUF_LEN];
-    u_int8_t     buf_pad[0];
+    uint32_t    cmd;
+    uint32_t    len;
+    uint8_t     buf[IFDATA_TLV_BUF_LEN];
+    uint8_t     buf_pad[0];
 }ifdata_tlv_t;
 
 
@@ -843,29 +843,29 @@ typedef enum sfvap_mode_
 
 typedef struct ugw_ext_scan_params_
 {
-    u_int32_t    scan_mode;                             /*扫描模式(主动/被动)*/
-    u_int32_t    scan_channel_list[MAX_SCAN_CHAN_CNT];  /*扫描信道列表(信道序号)*/
-    u_int32_t    channel_num;                           /*信道个数*/
-    u_int32_t    scan_per_channel_time;                 /*单信道扫描时间*/
+    uint32_t    scan_mode;                             /*扫描模式(主动/被动)*/
+    uint32_t    scan_channel_list[MAX_SCAN_CHAN_CNT];  /*扫描信道列表(信道序号)*/
+    uint32_t    channel_num;                           /*信道个数*/
+    uint32_t    scan_per_channel_time;                 /*单信道扫描时间*/
 
 }ugw_ext_scan_params_t;
 
 typedef struct ugw_ext_vap_info_
 {
-    u_int32_t wlan_id;
+    uint32_t wlan_id;
 }ugw_ext_vap_info_t;
 
 typedef struct ugw_ext_radio_info_
 {
-    u_int64_t    ap_devid; //APID
-    u_int32_t    rf_type;  //射频类型[0表示2G,1表示5G]
+    uint64_t    ap_devid; //APID
+    uint32_t    rf_type;  //射频类型[0表示2G,1表示5G]
 }ugw_ext_radio_info_t;
 
 
 typedef struct ugw_sta_acl_mac_
 {
-    u_int8_t    mac[IEEE80211_ADDR_LEN];    //添加到黑名单的MAC地址
-    u_int32_t   seconds;                    //黑名单有效时间 0表示永久生效
+    uint8_t    mac[IEEE80211_ADDR_LEN];    //添加到黑名单的MAC地址
+    uint32_t   seconds;                    //黑名单有效时间 0表示永久生效
     
 }ugw_sta_acl_mac_t;
 

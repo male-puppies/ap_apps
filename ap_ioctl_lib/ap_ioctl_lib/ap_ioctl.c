@@ -1187,7 +1187,7 @@ int set_radio_users_limit(int sock, const char *if_name, int max_users)
     ifr.ifr_name[IFNAMSIZ - 1] = '\0';
 
     tlv.cmd = UGW_RADIO_CMD_SET_USERS_LIMIT;
-    tlv.len = sizeof(u_int32_t);
+    tlv.len = sizeof(uint32_t);
     memcpy(&(tlv.buf), (void *)(&max_users), tlv.len);
     ifr.ifr_data = (void *) &tlv;   
 
