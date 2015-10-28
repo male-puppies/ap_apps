@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
 	TITLE:=lua cjson master
-	DEPENDS:=+liblua
+	DEPENDS:=+liblua +libc
 endef
 
 define Package/$(PKG_NAME)/description

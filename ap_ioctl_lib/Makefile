@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
 	TITLE:=ap ioctl lib
-	#DEPENDS:=+liblua
+	DEPENDS:=+liblua
 endef
 
 define Package/$(PKG_NAME)/description
