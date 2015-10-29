@@ -1,0 +1,5 @@
+echo $LUA_PATH | grep "$UGW_BASE/apps/cfgmgr/" >/dev/null
+test $? -ne 0 && export LUA_PATH="$UGW_BASE/apps/cfgmgr/?.lua;$LUA_PATH"
+
+echo $LUA_PATH | grep "$UGW_BASE/apps/apshare/" >/dev/null
+test $? -ne 0 && export LUA_PATH="$UGW_BASE/apps/apshare/?.lua;$LUA_PATH"
