@@ -4,7 +4,7 @@
  */
 #ifndef _AUTH_CLIENT_H_
 #define _AUTH_CLIENT_H_
-
+#include <time.h>
 extern int auth_client_set_online(const char *data);
 
 extern int auth_client_check_roaming(const unsigned char *mac, const char *ssid);

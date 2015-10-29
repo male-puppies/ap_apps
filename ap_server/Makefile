@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
 	TITLE:=ap server
-	#DEPENDS:=+liblua
+	DEPENDS:=+mqtt
 endef
 
 define Package/$(PKG_NAME)/description
@@ -24,7 +24,9 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
-	$(MAKE) -C $(SRC_DIR)  $(TARGET_CONFIGURE_OPTS)
+	$(MAKE) -C $(SRC_DIR)  $(TARGET_CONFIGURE_OPTS) \
+		LUA_LIB=$(BUILD_DIR)/lua51/src \
+		MQTT_LIB=$(BUILD_DIR)/mqtt/lib
 
 	mkdir -p $(PKG_BUILD_DIR)/ugw/bin/	
 	$(CP) $(SRC_DIR)/httpd $(PKG_BUILD_DIR)/ugw/bin/
@@ -32,7 +34,7 @@ define Build/Compile
 endef
 
 define Package/$(PKG_NAME)/install  
-	$(INSTALL_DIR) $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/ugw/bin/
 	$(CP) $(PKG_BUILD_DIR)/ugw/bin/httpd $(1)/ugw/bin/
 	chmod 0755 $(1)/ugw/bin/httpd
 	$(CP) $(PKG_BUILD_DIR)/ugw/bin/authd $(1)/ugw/bin/

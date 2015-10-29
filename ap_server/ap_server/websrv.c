@@ -19,6 +19,7 @@
 #include <sys/un.h>
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <linux/limits.h>
 
 #include "websrv.h"
 #include "mongoose.h"

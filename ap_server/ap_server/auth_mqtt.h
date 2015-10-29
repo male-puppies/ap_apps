@@ -4,6 +4,7 @@
  */
 #ifndef _AUTH_MQTT_H_
 #define _AUTH_MQTT_H_
+#include <sys/select.h>
 
 extern int auth_mqtt_fd(void);
 
