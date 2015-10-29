@@ -1,2 +1,0 @@
-echo $LUA_PATH | grep "$UGW_BASE/apps/logserver/" >/dev/null
-test $? -ne 0 && export LUA_PATH="$UGW_BASE/apps/logserver/?.lua;$LUA_PATH" 
