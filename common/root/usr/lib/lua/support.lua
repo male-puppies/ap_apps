@@ -12,18 +12,18 @@ local function read(path, func)
 	return s
 end
 
--- 2g对应wifi0， 5g对应wifi1
+-- 2g对应wlan0， 5g对应wlan1
 local function init_band_support()
 	g_band_support = {}
 
-	local s = read("iwconfig 2>&1 | grep wifi", io.popen)
+	local s = read("iwinfo 2>&1 | grep wlan", io.popen)
 	local _ = s or log.fatal("init_band_support fail")
-	if s:find("wifi0") then  
+	if s:find("wlan0") then  
 		g_band_support["2g"] = 1
 		log.debug("support band 2g")
 	end
 
-	if s:find("wifi1") then  
+	if s:find("wlan1") then  
 		g_band_support["5g"] = 1
 		log.debug("support band 5g")
 	end
@@ -51,14 +51,26 @@ end
 
 local function wifi_arr_support()
 	local arr = {}
-	local _ = g_band_support["2g"] and table.insert(arr, "wifi0")
-	local _ = g_band_support["5g"] and table.insert(arr, "wifi1")
+	local _ = g_band_support["2g"] and table.insert(arr, "wlan0")
+	local _ = g_band_support["5g"] and table.insert(arr, "wlan1")
 	return arr
 end
 
 local function get_wifi(band)
 	assert(band == "2g" or band == "5g")
-	return band == "2g" and "wifi0" or "wifi1"
+	return band == "2g" and "wlan0" or "wlan1"
+end
+
+local function get_dev(band)
+	assert(band == "2g" or band == "5g")
+	return band == "2g" and "radio0" or "radio1"
+end
+
+local function is_support_band(band)
+	if g_band_support[band] then
+		return true
+	end
+	return false
 end
 
 return {
