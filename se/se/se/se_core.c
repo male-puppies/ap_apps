@@ -113,7 +113,7 @@ static void se_thread_resume(lua_State *L, struct se_thread *thread)
 	int status;
 
 	if (lua_status(co) == LUA_OK && lua_gettop(co) == 0)
-		luaL_error(L, "cannot resume dead coroutine %d %d %d", lua_status(co), LUA_OK, lua_gettop(co));
+		luaL_error(L, "cannot resume dead coroutine");
 
 	status = lua_resume(co, L, thread->nresult);
 	switch (status) {
@@ -177,13 +177,8 @@ int l_se_go(lua_State *L)
 
 int l_se_time(lua_State *L)
 {
-	struct timespec ts;
-	int err;
-
-	err = clock_gettime(CLOCK_MONOTONIC, &ts);
-	se_assert(L, !err, "clock_gettime() error: %s", strerror(errno));
-
-	lua_pushnumber(L, ts.tv_sec + ts.tv_nsec * 1e-9);
+	ev_now_update(EV_DEFAULT);
+	lua_pushnumber(L, ev_now(EV_DEFAULT));
 	return 1;
 }
 
@@ -456,8 +451,8 @@ static void se_on_connect(EV_P_ ev_io *io, int revents)
 
 	err = se_socket_error(io->fd);
 	if (err) {
-		close(io->fd);
 		se_thread_wakeup_io(thread, se_connect_error(thread->L, strerror(err)));
+		close(io->fd);
 	} else {
 		lua_pushinteger(thread->L, io->fd);
 		se_thread_wakeup_io(thread, 1);
@@ -470,6 +465,7 @@ static void se_on_connect_timeout(EV_P_ ev_timer *timer, int revents)
 
 	se_assert_arity(thread->L, 0);
 	se_thread_wakeup_io(thread, se_connect_error(thread->L, "TIMEOUT"));
+	close(thread->io.fd);
 }
 
 int l_se_connect(lua_State *L)
@@ -488,6 +484,7 @@ int l_se_connect(lua_State *L)
 		if (fd < 0)
 			return se_connect_error(L, strerror(err));
 		SE_WAIT_TIMEOUT(L, 0, 2, io, connect, fd, EV_WRITE);
+		close(fd);
 		return se_connect_error(L, "TIMEOUT");
 	}
 

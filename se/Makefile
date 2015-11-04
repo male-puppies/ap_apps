@@ -17,7 +17,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
 	TITLE:=see
-	DEPENDS:=+liblua
+	DEPENDS:=+lua53
 endef
 
 define Package/$(PKG_NAME)/description
@@ -25,19 +25,22 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
-	$(MAKE) -C $(SRC_DIR)  $(TARGET_CONFIGURE_OPTS)
-	#$(MAKE)  -C $(SRC_DIR) 
-		
-	mkdir -p $(PKG_BUILD_DIR)/bin
-	$(CP) $(SRC_DIR)/bin/*.so $(PKG_BUILD_DIR)/bin
-	$(CP) $(SRC_DIR)/bin/*.lua $(PKG_BUILD_DIR)/bin
+	echo "--------------------" $(BUILD_DIR)/lua53/src
+	$(MAKE) -C $(SRC_DIR) LUA_SO_DIR=$(BUILD_DIR)/lua53/src $(TARGET_CONFIGURE_OPTS)  
+	
+	#$(MAKE)  -C $(SRC_DIR)/se \
+	#	CC="$(TARGET_CROSS)gcc" \
+	#	AR="$(TARGET_CROSS)ar rcu" \
+	#	RANLIB="$(TARGET_CROSS)ranlib" \
+	#	INSTALL_ROOT=/usr \
+	#	CFLAGS="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS) -fPIC" \
+	#	MYLDFLAGS="$(TARGET_LDFLAGS)" \
+	#	PKG_VERSION=$(PKG_VERSION)
 endef
 
 define Package/$(PKG_NAME)/install  
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/ugw/script/
-	$(CP) $(PKG_BUILD_DIR)/bin/*so $(1)/usr/lib/
-	$(CP)  $(PKG_BUILD_DIR)/bin/*.lua $(1)/ugw/script/
+	$(INSTALL_DIR) $(1)/usr/lib/lua 
+	$(CP) $(SRC_DIR)/bin/se.so $(1)/usr/lib/lua 
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

@@ -1,4 +1,4 @@
-TARGETS 	:= se.so selua
+TARGETS 	:= se.so
 
 FLAGS		:= -fPIC -Wall -O2 -g
 LDFLAGS		:=
@@ -17,11 +17,11 @@ ifneq ($(USE_LUAJIT),)
 FLAGS		+= -I/usr/include/luajit-2.0
 LDFLAGS		+= -lluajit-5.1
 else
-FLAGS		+= -I../../lua51/lua-5.1.5/src/
-LDFLAGS		+= -L../../lua51/lua-5.1.5/src/ -llua -lm -ldl
+FLAGS		+= -I../../../lua53/lua-5.3.1/src/
+LDFLAGS		+= -L$(LUA_SO_DIR) -llua53 -lm -ldl -fpic
 endif
 
-CFLAGS		:= $(FLAGS)
+CFLAGS		+= $(FLAGS)
 
 SE_SRC		:= $(wildcard se_*.c) $(wildcard utils/*.c)
 SE_OBJS		:= $(SE_SRC:%.c=%.o)
@@ -35,6 +35,8 @@ all: $(TARGETS)
 clean:
 	rm -f $(OBJECTS)
 	rm -f $(TARGETS)
+	rm -f *.o
+	rm -f utils/*.o
 
 se_ev.o: se_ev.c
 	$(CC) $(CFLAGS) -w -c -o $@ $^

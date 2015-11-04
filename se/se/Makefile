@@ -1,20 +1,19 @@
-LIB_DEPENDS	:= se cjson
+LIB_DEPENDS	:= se
 LIB_CLEAN	:= $(LIB_DEPENDS:%=clean-%)
 LIB_BIN		:= $(LIB_DEPENDS:%=bin/%.so)
 
 TEST_SRC	:= $(wildcard test/test_*.lua)
 TEST_TARGET	:= $(TEST_SRC:test/%.lua=%)
 
-.PHONY: all clean test $(TEST_TARGET)
+.PHONY: all clean $(TEST_TARGET)
 
 all:
 	for lib in $(LIB_DEPENDS); do \
 		make -C $$lib && cp $$lib/$$lib.so bin/$$lib.so || exit 1; \
 	done
-	cp se/selua bin/selua
 
 clean: $(LIB_CLEAN)
-	rm -f $(LIB_BIN) bin/selua
+	
 
 $(LIB_CLEAN):
 	make clean -C $(@:clean-%=%)
