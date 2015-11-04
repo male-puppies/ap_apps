@@ -24,6 +24,45 @@
 # define lua_pushglobaltable(L) lua_pushvalue(L, LUA_GLOBALSINDEX)
 #endif
 
+
+
+#if LUA_VERSION_NUM < 502
+#define LUA_OK	0
+#define lua_rawlen lua_objlen
+/* lua_...uservalue: Something very different, but it should get the job done */
+#define lua_getuservalue lua_getfenv
+#define lua_setuservalue lua_setfenv
+#define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
+#define luaL_setfuncs(L,l,n) (assert(n==0), luaL_register(L,NULL,l))
+#define lua_resume(L,F,n) lua_resume(L,n)
+#endif
+
+
+#if LUA_VERSION_NUM < 502 
+# define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
+#endif 
+
+#if LUA_VERSION_NUM > 501
+/*
+** Lua 5.2
+*/
+#define lua_strlen lua_rawlen
+/* luaL_typerror always used with arg at ndx == NULL */
+#define luaL_typerror(L,ndx,str) luaL_error(L,"bad argument %d (%s expected, got nil)",ndx,str)
+/* luaL_register used once, so below expansion is OK for this case */
+#define luaL_register(L,name,reg) lua_newtable(L);luaL_setfuncs(L,reg,0)
+/* luaL_openlib always used with name == NULL */
+#define luaL_openlib(L,name,reg,nup) luaL_setfuncs(L,reg,nup)
+
+#if LUA_VERSION_NUM > 502
+/*
+** Lua 5.3
+*/
+#define luaL_checkint(L,n)  ((int)luaL_checkinteger(L, (n)))
+#endif
+#endif
+
+
 enum {
     BAD_REPLY           = 0,
     STATUS_REPLY        = 1,
@@ -86,11 +125,7 @@ static const struct luaL_Reg redis_parser[] = {
     {NULL, NULL}
 };
 
-#ifdef BY_LUA_53
 int luaopen_redis_parser53(lua_State *L)
-#else
-int luaopen_redis_parser(lua_State *L)
-#endif 
 {
     luaL_newlib(L, redis_parser);
 

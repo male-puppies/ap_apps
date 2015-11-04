@@ -25,23 +25,12 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
-	#$(MAKE) -C lua-redis-parser  $(TARGET_CONFIGURE_OPTS)
-	$(MAKE)  -C $(SRC_DIR) \
-		CC="$(TARGET_CROSS)gcc" \
-		AR="$(TARGET_CROSS)ar rcu" \
-		RANLIB="$(TARGET_CROSS)ranlib" \
-		INSTALL_ROOT=/usr \
-		CFLAGS="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS)" \
-		MYLDFLAGS="$(TARGET_LDFLAGS)" \
-		PKG_VERSION=$(PKG_VERSION) \
-		LUA_INC=$(BUILD_DIR)/lua51/src
-	$(INSTALL_DATA) $(SRC_DIR)/parser.so $(PKG_BUILD_DIR)/
-
+	$(MAKE) -C lua-redis-parser LUA_SO_DIR=$(BUILD_DIR)/lua53/src $(TARGET_CONFIGURE_OPTS) 
 endef
 
 define Package/$(PKG_NAME)/install  
 	$(INSTALL_DIR) $(1)/usr/lib/redis/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/parser.so $(1)/usr/lib/redis/
+	#$(INSTALL_DATA) $(PKG_BUILD_DIR)/parser.so $(1)/usr/lib/redis/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
