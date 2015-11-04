@@ -25,16 +25,16 @@ define Package/$(PKG_NAME)/description
 endef
 
 define Build/Compile
-	#$(MAKE) -C lua-cjson-master  $(TARGET_CONFIGURE_OPTS)
+	$(MAKE) -C lua-cjson-master  $(TARGET_CONFIGURE_OPTS)
 
-	$(MAKE) -C $(SRC_DIR) $(TARGET_CONFIGURE_OPTS) \
-		LUA51_SO_DIR=$(BUILD_DIR)/lua51/src  LUA_INC=$(BUILD_DIR)/lua51/src
-	$(CP) $(SRC_DIR)/cjson.so $(PKG_BUILD_DIR)
+	#$(MAKE) -C $(SRC_DIR) $(TARGET_CONFIGURE_OPTS) \
+	#	LUA51_SO_DIR=$(BUILD_DIR)/lua51/src  LUA_INC=$(BUILD_DIR)/lua51/src
+	#$(CP) $(SRC_DIR)/cjson.so $(PKG_BUILD_DIR)
 endef
 
 define Package/$(PKG_NAME)/install  
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/cjson.so $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/lua
+	$(CP) $(PKG_BUILD_DIR)/cjson.so $(1)/usr/lib/lua
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
