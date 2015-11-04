@@ -66,7 +66,7 @@
 
 #include "lfs.h"
 
-#define LFS_VERSION "1.6.2"
+#define LFS_VERSION "1.6.3"
 #define LFS_LIBNAME "lfs"
 
 #if LUA_VERSION_NUM >= 503 /* Lua 5.3 */
@@ -80,6 +80,45 @@
 #if LUA_VERSION_NUM < 502
 #  define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
 #endif
+
+
+
+#if LUA_VERSION_NUM < 502
+#define LUA_OK	0
+#define lua_rawlen lua_objlen
+/* lua_...uservalue: Something very different, but it should get the job done */
+#define lua_getuservalue lua_getfenv
+#define lua_setuservalue lua_setfenv
+#define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
+#define luaL_setfuncs(L,l,n) (assert(n==0), luaL_register(L,NULL,l))
+#define lua_resume(L,F,n) lua_resume(L,n)
+#endif
+
+
+#if LUA_VERSION_NUM < 502 
+# define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
+#endif 
+
+#if LUA_VERSION_NUM > 501
+/*
+** Lua 5.2
+*/
+#define lua_strlen lua_rawlen
+/* luaL_typerror always used with arg at ndx == NULL */
+#define luaL_typerror(L,ndx,str) luaL_error(L,"bad argument %d (%s expected, got nil)",ndx,str)
+/* luaL_register used once, so below expansion is OK for this case */
+#define luaL_register(L,name,reg) lua_newtable(L);luaL_setfuncs(L,reg,0)
+/* luaL_openlib always used with name == NULL */
+#define luaL_openlib(L,name,reg,nup) luaL_setfuncs(L,reg,nup)
+
+#if LUA_VERSION_NUM > 502
+/*
+** Lua 5.3
+*/
+#define luaL_checkint(L,n)  ((int)luaL_checkinteger(L, (n)))
+#endif
+#endif
+
 
 /* Define 'strerror' for systems that do not implement it */
 #ifdef NO_STRERROR
@@ -197,15 +236,23 @@ static int get_dir (lua_State *L) {
 ** Check if the given element on the stack is a file and returns it.
 */
 static FILE *check_file (lua_State *L, int idx, const char *funcname) {
+#if LUA_VERSION_NUM == 501
         FILE **fh = (FILE **)luaL_checkudata (L, idx, "FILE*");
-        if (fh == NULL) {
-                luaL_error (L, "%s: not a file", funcname);
-                return 0;
-        } else if (*fh == NULL) {
+        if (*fh == NULL) {
                 luaL_error (L, "%s: closed file", funcname);
                 return 0;
         } else
                 return *fh;
+#elif LUA_VERSION_NUM >= 502 && LUA_VERSION_NUM <= 503
+        luaL_Stream *fh = (luaL_Stream *)luaL_checkudata (L, idx, "FILE*");
+        if (fh->closef == 0 || fh->f == NULL) {
+                luaL_error (L, "%s: closed file", funcname);
+                return 0;
+        } else
+                return fh->f;
+#else
+#error unsupported Lua version
+#endif
 }
 
 
@@ -292,7 +339,7 @@ static int lfs_lock_dir(lua_State *L) {
   return 1;
 }
 static int lfs_unlock_dir(lua_State *L) {
-  lfs_Lock *lock = luaL_checkudata(L, 1, LOCK_METATABLE);
+  lfs_Lock *lock = (lfs_Lock *)luaL_checkudata(L, 1, LOCK_METATABLE);
   if(lock->fd != INVALID_HANDLE_VALUE) {    
     CloseHandle(lock->fd);
     lock->fd=INVALID_HANDLE_VALUE;
@@ -325,7 +372,7 @@ static int lfs_lock_dir(lua_State *L) {
   return 1;
 }
 static int lfs_unlock_dir(lua_State *L) {
-  lfs_Lock *lock = luaL_checkudata(L, 1, LOCK_METATABLE);
+  lfs_Lock *lock = (lfs_Lock *)luaL_checkudata(L, 1, LOCK_METATABLE);
   if(lock->ln) {
     unlink(lock->ln);
     free(lock->ln);
@@ -375,8 +422,8 @@ static int lfs_f_setmode(lua_State *L) {
 static int file_lock (lua_State *L) {
         FILE *fh = check_file (L, 1, "lock");
         const char *mode = luaL_checkstring (L, 2);
-        const long start = luaL_optlong (L, 3, 0);
-        long len = luaL_optlong (L, 4, 0);
+        const long start = (long) luaL_optinteger (L, 3, 0);
+        long len = (long) luaL_optinteger (L, 4, 0);
         if (_file_lock (L, fh, mode, start, len, "lock")) {
                 lua_pushboolean (L, 1);
                 return 1;
@@ -396,8 +443,8 @@ static int file_lock (lua_State *L) {
 */
 static int file_unlock (lua_State *L) {
         FILE *fh = check_file (L, 1, "unlock");
-        const long start = luaL_optlong (L, 2, 0);
-        long len = luaL_optlong (L, 3, 0);
+        const long start = (long) luaL_optinteger (L, 2, 0);
+        long len = (long) luaL_optinteger (L, 3, 0);
         if (_file_lock (L, fh, "u", start, len, "unlock")) {
                 lua_pushboolean (L, 1);
                 return 1;
@@ -664,7 +711,7 @@ static int file_utime (lua_State *L) {
                 buf = NULL;
         else {
                 utb.actime = (time_t)luaL_optnumber (L, 2, 0);
-                utb.modtime = (time_t)luaL_optnumber (L, 3, utb.actime);
+                utb.modtime = (time_t) luaL_optinteger (L, 3, utb.actime);
                 buf = &utb;
         }
         if (utime (file, buf)) {
@@ -683,52 +730,52 @@ static void push_st_mode (lua_State *L, STAT_STRUCT *info) {
 }
 /* device inode resides on */
 static void push_st_dev (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_dev);
+        lua_pushinteger (L, (lua_Integer) info->st_dev);
 }
 /* inode's number */
 static void push_st_ino (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_ino);
+        lua_pushinteger (L, (lua_Integer) info->st_ino);
 }
 /* number of hard links to the file */
 static void push_st_nlink (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_nlink);
+        lua_pushinteger (L, (lua_Integer)info->st_nlink);
 }
 /* user-id of owner */
 static void push_st_uid (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_uid);
+        lua_pushinteger (L, (lua_Integer)info->st_uid);
 }
 /* group-id of owner */
 static void push_st_gid (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_gid);
+        lua_pushinteger (L, (lua_Integer)info->st_gid);
 }
 /* device type, for special file inode */
 static void push_st_rdev (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_rdev);
+        lua_pushinteger (L, (lua_Integer) info->st_rdev);
 }
 /* time of last access */
 static void push_st_atime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, info->st_atime);
+        lua_pushinteger (L, (lua_Integer) info->st_atime);
 }
 /* time of last data modification */
 static void push_st_mtime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, info->st_mtime);
+        lua_pushinteger (L, (lua_Integer) info->st_mtime);
 }
 /* time of last file status change */
 static void push_st_ctime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, info->st_ctime);
+        lua_pushinteger (L, (lua_Integer) info->st_ctime);
 }
 /* file size, in bytes */
 static void push_st_size (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_size);
+        lua_pushinteger (L, (lua_Integer)info->st_size);
 }
 #ifndef _WIN32
 /* blocks allocated for file */
 static void push_st_blocks (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_blocks);
+        lua_pushinteger (L, (lua_Integer)info->st_blocks);
 }
 /* optimal file system I/O blocksize */
 static void push_st_blksize (lua_State *L, STAT_STRUCT *info) {
-        lua_pushnumber (L, (lua_Number)info->st_blksize);
+        lua_pushinteger (L, (lua_Integer)info->st_blksize);
 }
 #endif
 
@@ -738,7 +785,7 @@ static void push_st_blksize (lua_State *L, STAT_STRUCT *info) {
 
 #ifdef _WIN32
 static const char *perm2string (unsigned short mode) {
-  static char perms[10] = "---------\0";
+  static char perms[10] = "---------";
   int i;
   for (i=0;i<9;i++) perms[i]='-';
   if (mode  & _S_IREAD)
@@ -751,7 +798,7 @@ static const char *perm2string (unsigned short mode) {
 }
 #else
 static const char *perm2string (mode_t mode) {
-  static char perms[10] = "---------\0";
+  static char perms[10] = "---------";
   int i;
   for (i=0;i<9;i++) perms[i]='-';
   if (mode & S_IRUSR) perms[0] = 'r';
@@ -887,7 +934,7 @@ static const struct luaL_Reg fslib[] = {
         {NULL, NULL},
 };
 
-int luaopen_lfs (lua_State *L) {
+int luaopen_lfs53(lua_State *L) {
         dir_create_meta (L);
         lock_create_meta (L);
         luaL_newlib (L, fslib);

@@ -2,20 +2,17 @@
 
 T= lfs
 
-#CONFIG= ./config
+CONFIG= ./config
 
-#include $(CONFIG)
-
-LUA_INC= ./lua-5.1.5/src
-
+include $(CONFIG)
+ 
 SRCS= src/$T.c
-OBJS= src/$T.o
 
 lib: src/lfs.so
 
-src/lfs.so: $(OBJS)
+src/lfs.so: 
 	MACOSX_DEPLOYMENT_TARGET="10.3"; export MACOSX_DEPLOYMENT_TARGET; 
-	$(CC) $(SRCS) -shared  -fPIC -I$(LUA_INC) -L$(LUA_LIBDIR) -o src/lfs.so 
+	$(CC) $(SRCS) -shared  -fPIC -I$(LUA_INC) -L$(LUA_SO_DIR) -llua53 -lm -ldl -o src/lfs.so 
 
 test: lib
 	LUA_CPATH=./src/?.so lua tests/test.lua
@@ -25,4 +22,4 @@ install:
 	cp src/lfs.so $(LUA_LIBDIR)
 
 clean:
-	rm -f src/lfs.so $(OBJS)
+	rm -f src/lfs.so

@@ -4,10 +4,10 @@
 PREFIX=/usr/local
 
 # System's libraries directory (where binary libraries are installed)
-LUA_LIBDIR= ../../lua51/lua-5.1.5/src/
+LUA_LIBDIR=../../../lua53/lua-5.3.1/src/
 
 # Lua includes directory
-LUA_INC= -I../../lua51/lua-5.1.5/src/
+LUA_INC= ../../../lua53/lua-5.3.1/src/
 
 # OS dependent
 LIB_OPTION= -shared #for Linux
