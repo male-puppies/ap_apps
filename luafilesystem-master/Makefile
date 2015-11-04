@@ -17,30 +17,19 @@ define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
 	TITLE:=lua filesystem library
-	DEPENDS:=+liblua51
+	DEPENDS:=+lua53
 endef
 
 define Package/$(PKG_NAME)/description
 	lua filesystem library
 endef
 
-define Build/Compile
-	#$(MAKE) -C luafilesystem-master  $(TARGET_CONFIGURE_OPTS)
-	$(MAKE)  -C $(SRC_DIR) \
-		CC="$(TARGET_CROSS)gcc" \
-		AR="$(TARGET_CROSS)ar rcu" \
-		RANLIB="$(TARGET_CROSS)ranlib" \
-		INSTALL_ROOT=/usr \
-		CFLAGS="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS)" \
-		MYLDFLAGS="$(TARGET_LDFLAGS)" \
-		PKG_VERSION=$(PKG_VERSION) \
-		LUA_LIBDIR=$(BUILD_DIR)/lua51/src
-	#mkdir -p $(PKG_BUILD_DIR)/src
-	#$(CP) $(SRC_DIR)/src/lfs.so $(PKG_BUILD_DIR)/src/
+define Build/Compile 
+	$(MAKE) -C luafilesystem-master/src LUA_SO_DIR=$(BUILD_DIR)/lua53/src $(TARGET_CONFIGURE_OPTS)   
 endef
 
 define Package/$(PKG_NAME)/install  
-	$(INSTALL_DIR) $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/lua
 	#$(CP) $(PKG_BUILD_DIR)/src/lfs.so  $(1)/usr/lib/
 endef
 
