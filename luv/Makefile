@@ -29,7 +29,7 @@ endef
 
 define Package/$(PKG_NAME)/install  
 	$(INSTALL_DIR) $(1)/usr/lib/lua/
-	$(INSTALL_BIN) luv/src/luv.so $(1)/usr/lib/lua/ 
+	$(INSTALL_BIN) luv/src/luv53.so $(1)/usr/lib/lua/ 
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

@@ -17,7 +17,7 @@ define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
 	TITLE:=redis_parser
-	DEPENDS:=+liblua
+	DEPENDS:=+lua53
 endef
 
 define Package/$(PKG_NAME)/description
@@ -29,8 +29,8 @@ define Build/Compile
 endef
 
 define Package/$(PKG_NAME)/install  
-	$(INSTALL_DIR) $(1)/usr/lib/redis/
-	#$(INSTALL_DATA) $(PKG_BUILD_DIR)/parser.so $(1)/usr/lib/redis/
+	$(INSTALL_DIR) $(1)/usr/lib/lua/redis/
+	$(INSTALL_DATA) lua-redis-parser/parser53.so $(1)/usr/lib/lua/redis/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

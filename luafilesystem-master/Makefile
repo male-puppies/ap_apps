@@ -30,7 +30,7 @@ endef
 
 define Package/$(PKG_NAME)/install  
 	$(INSTALL_DIR) $(1)/usr/lib/lua
-	#$(CP) $(PKG_BUILD_DIR)/src/lfs.so  $(1)/usr/lib/
+	$(INSTALL_DATA) luafilesystem-master/src/lfs53.so  $(1)/usr/lib/lua
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
