@@ -1,9 +1,9 @@
 require("global")
 local se = require("se")
-local lfs = require("lfs")
+local lfs = require("lfs53")
 local log = require("log")
 local apmgr = require("apmgr") 
-local js = require("cjson.safe") 
+local js = require("cjson53.safe") 
 
 js.encode_keep_buffer(false)
 

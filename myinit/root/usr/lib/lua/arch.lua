@@ -21,11 +21,11 @@ local function isx86()
 end
 
 local function configdir()
-	return isx86() and "/ugw/etc/wac" or "/ugwconfig/etc/ap"
+	return isx86() and "/ugw/etc/wac" or "/etc/config"
 end
 
 local function default_cfg()
-	return isx86() and "/ugw/etc/wac/default_config.json" or "/ugw/etc/ap/default_config.json"
+	return isx86() and "/ugw/etc/wac/default_config.json" or "/etc/config/default_config.json"
 end
 
 return {ismips = ismips, isx86 = isx86, configdir = configdir, default_cfg = default_cfg}

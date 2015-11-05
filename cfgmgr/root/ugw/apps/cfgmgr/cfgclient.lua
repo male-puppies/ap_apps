@@ -1,6 +1,6 @@
 local se = require("se")
 local log = require("log")
-local js = require("cjson.safe") 
+local js = require("cjson53.safe") 
 local baseclient = require("baseclient")
 
 local function cursec()

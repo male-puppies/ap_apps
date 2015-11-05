@@ -274,9 +274,9 @@ end
 
 local function main()
 	g_apid = read_apid()
-	-- se.go(start_local)
-	-- se.go(start_remote)
-	-- se.go(check_mqtt_change)
+	se.go(start_local)
+	se.go(start_remote)
+	se.go(check_mqtt_change)
 end
 
 log.setdebug(true)

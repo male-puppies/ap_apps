@@ -48,6 +48,9 @@ local global_value = {
 	getfenv=1,
 	setmetatable=1,
 	define = 1,
+	utf8 = 1,
+	bit32 = 1,
+	rawlen = 1,
 	_LNUM = 1,
 }
 

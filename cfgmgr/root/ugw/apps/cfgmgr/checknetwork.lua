@@ -1,9 +1,9 @@
 local se = require("se")
-local lfs = require("lfs")
+local lfs = require("lfs53")
 local log = require("log") 
 local pkey = require("key")
 local cfg = require("cfgmgr")
-local js = require("cjson.safe")
+local js = require("cjson53.safe")
 local const = require("constant")
 
 local pcli
