@@ -21,7 +21,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
 	SECTION:=Applications
-	CATEGORY:=Puppies
+	CATEGORY:=apps
 	TITLE:=sand
 endef
 
