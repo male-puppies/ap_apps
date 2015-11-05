@@ -8,6 +8,6 @@ local function main(host, port)
 end
 
 local host, port = ...
-host = host or "0.0.0.0"
+host = host or "127.0.0.1"
 port = port or 61886
 main(host, port)

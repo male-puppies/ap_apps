@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=mqtt
+PKG_NAME:=mosquitto14
 PKG_VERSION:=0.1
 PKG_RELEASE:=0
 
@@ -16,8 +16,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
-	TITLE:=mqtt library
-	#DEPENDS:=+liblua
+	TITLE:=mqtt library 
 endef
 
 define Package/$(PKG_NAME)/description
@@ -38,7 +37,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/sbin/
 	$(CP) $(PKG_BUILD_DIR)/lib/libmosquitto.so.1 $(1)/usr/lib/
-	ln -sf $(1)/usr/lib/libmosquitto.so.1 $(1)/usr/lib/libmosquitto.so 
+	#ln -sf $(1)/usr/lib/libmosquitto.so.1 $(1)/usr/lib/libmosquitto.so 
 	$(CP) $(PKG_BUILD_DIR)/src/mosquitto $(1)/usr/sbin/
 endef
 
