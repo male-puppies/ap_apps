@@ -39,6 +39,7 @@ define Package/$(PKG_NAME)/install
 	$(CP) $(PKG_BUILD_DIR)/lib/libmosquitto.so.1 $(1)/usr/lib/
 	#ln -sf $(1)/usr/lib/libmosquitto.so.1 $(1)/usr/lib/libmosquitto.so 
 	$(CP) $(PKG_BUILD_DIR)/src/mosquitto $(1)/usr/sbin/
+	$(CP) -a ./root/* $(1)/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
