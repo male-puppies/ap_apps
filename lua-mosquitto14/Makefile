@@ -15,7 +15,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
-	TITLE:=lua-mosquitto
+	TITLE:=lua-mosquitto14
 	DEPENDS:=+lua53 mosquitto14
 endef
 
