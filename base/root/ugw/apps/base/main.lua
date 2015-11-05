@@ -2,7 +2,7 @@ local se = require("se")
 local log = require("log") 
 local pkey = require("key")
 local sandc = require("sandc")
-local js = require("cjson.safe") 
+local js = require("cjson53.safe") 
 local mosq = require("mosquitto")  
 local const = require("constant") 
 local compare = require("compare")
@@ -274,9 +274,9 @@ end
 
 local function main()
 	g_apid = read_apid()
-	se.go(start_local)
-	se.go(start_remote)
-	se.go(check_mqtt_change)
+	-- se.go(start_local)
+	-- se.go(start_remote)
+	-- se.go(check_mqtt_change)
 end
 
 log.setdebug(true)

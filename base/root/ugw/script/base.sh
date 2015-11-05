@@ -7,5 +7,5 @@ errorfile=/tmp/ugw/log/apmgr.error
 
 test -d /tmp/ugw/log/ || mkdir -p /tmp/ugw/log/ 
 cd /ugw/apps/base/
-lua /ugw/apps/base/main.lua >/dev/null 2>>$errorfile
+lua53 /ugw/apps/base/main.lua >/dev/null 2>>$errorfile
 
