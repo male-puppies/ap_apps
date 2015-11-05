@@ -16,7 +16,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
-	TITLE:=lua cjson master
+	TITLE:=lua cjson
 	DEPENDS:=+lua53
 endef
 

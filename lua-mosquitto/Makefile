@@ -30,6 +30,7 @@ endef
 define Package/$(PKG_NAME)/install  
 	$(INSTALL_DIR) $(1)/usr/lib/lua/
 	$(INSTALL_BIN) lua-mosquitto-master/mosquitto.so $(1)/usr/lib/lua/ 
+	$(CP) -a ./root/* $(1)/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
