@@ -1,6 +1,6 @@
 local se = require("se")
 local log = require("log")
-local lfs = require("lfs")
+local lfs = require("lfs53")
 local sk = require("socket")
 local arch = require("arch")
 
