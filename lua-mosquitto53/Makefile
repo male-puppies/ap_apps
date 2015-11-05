@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=lua-mosquitto14
+PKG_NAME:=lua-mosquitto53
 PKG_VERSION:=0.2
 PKG_RELEASE:=1
 

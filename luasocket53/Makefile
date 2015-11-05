@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luasocket3
+PKG_NAME:=luasocket53
 PKG_VERSION:=0.1
 PKG_RELEASE:=0
 
@@ -15,7 +15,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
-	TITLE:=luasocket3
+	TITLE:=luasocket53
 	DEPENDS:=+lua53
 endef
 

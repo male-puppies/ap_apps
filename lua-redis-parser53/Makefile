@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=lua_redis_parser
+PKG_NAME:=lua_redis_parser53
 PKG_VERSION:=0.1
 PKG_RELEASE:=0
 
