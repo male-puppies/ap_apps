@@ -9,6 +9,7 @@ test -d /tmp/ugw/log/ || mkdir -p /tmp/ugw/log/
 cd /ugw/apps/sands/
 
 while :; do 
+	echo "`date` `uptime` start sands" >>$errorfile
 	lua53 /ugw/apps/sands/main.lua >/dev/null 2>>$errorfile
 	sleep 2
 done

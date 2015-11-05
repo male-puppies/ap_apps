@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=abncheck
+PKG_NAME:=base
 PKG_VERSION:=2015-10-27
 PKG_RELEASE:=1
 
@@ -22,11 +22,11 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
-	TITLE:=ap abnormal status checking 
+	TITLE:=base connect 
 endef
 
 define Package/$(PKG_NAME)/description
-	ap abnormal status checking 
+	base connect 
 endef
 
 
