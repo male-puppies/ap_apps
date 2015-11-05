@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=lua-cjson-master
+PKG_NAME:=lua-cjson53
 PKG_VERSION:=0.1
 PKG_RELEASE:=0
 

@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=redis_parser
+PKG_NAME:=lua_redis_parser
 PKG_VERSION:=0.1
 PKG_RELEASE:=0
 
@@ -16,7 +16,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	SECTION:=Applications
 	CATEGORY:=apps
-	TITLE:=redis_parser
+	TITLE:=lua_redis_parser
 	DEPENDS:=+lua53
 endef
 
