@@ -276,7 +276,7 @@ function cmd_map.ap_set_config(map)
 
 	cfg.save()
 
-	local cmd = "kdog.sh network; sleep 3; kdog.sh base; kdog.sh report; kdog.sh cfgmgr"
+	local cmd = "killstr network; sleep 3; killstr base; killstr report; killstr cfgmgr"
 	log.info("%s", cmd)
 	os.execute(cmd)
 	os.exit(0)

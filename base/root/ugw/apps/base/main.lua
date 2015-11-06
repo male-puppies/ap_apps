@@ -249,7 +249,7 @@ check_mqtt_change = function()
 			local host, port = get_cfg_host_port(g_apid)
 			if host and port and (c_host ~= host or c_port ~= port) then  		-- 如果配置中的控制器地址改变了，重启
 				print("%s cfg mqtt change %s:%s -> %s:%s. exit", g_type, g_host, g_port, host, port)
-				local cmd = string.format("rm %s; kdog.sh cfgmgr; kdog.sh beacon", beacon_config)
+				local cmd = string.format("rm %s; killstr cfgmgr; killstr beacon", beacon_config)
 				log.debug("%s", cmd)
 				os.execute(cmd)
 				os.exit(0)
