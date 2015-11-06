@@ -1,8 +1,8 @@
 require("global")
 local se = require("se")
-local lfs = require("lfs")
+local lfs = require("lfs53")
 local log = require("log")
-local js = require("cjson.safe")  
+local js = require("cjson53.safe")  
 local const = require("constant")  
 local compare = require("compare")
 local pkey = require("key")
@@ -11,7 +11,7 @@ local keys = const.keys
 js.encode_keep_buffer(false)
 
 local g_apid
-local ap_config_path = "/ugwconfig/etc/ap/ap_config.json"
+local ap_config_path = "/etc/config/ap_config.json"
 
 local check_id, new_id = 0, 0
 local function next_check_id()
@@ -76,17 +76,16 @@ local function start_dhcpc(id)
 	log.debug("start dhcpc %s", id)
 
 	while id == check_id do
-		local cmd = "killall udhcpc; timeout -t 5 udhcpc -i br0; touch /tmp/network_change"
+		local cmd = "killall udhcpc; timeout -t 5 udhcpc -i br-lan; touch /tmp/network_change"
 		log.debug("%s", cmd)
-		local ret = os.execute(cmd)
-		if ret == 0 then 
+		if os.execute(cmd) then 
 			break 
 		end
 		se.sleep(1)
 	end
 
 	while id == check_id do
-		local cmd = "pidof udhcpc >/dev/null || timeout -t 5 udhcpc -i br0"
+		local cmd = "pidof udhcpc >/dev/null || timeout -t 5 udhcpc -i br-lan"
 		-- log.debug("%s", cmd)
 		-- print(cmd)
 		os.execute(cmd)
@@ -135,7 +134,7 @@ local function set_static(map)
 	local cmd_arr = {}
 	table.insert(cmd_arr, "killall udhcpc")
 	
-	local cmd = string.format("ifconfig br0 %s netmask %s", map["a#ip"], map["a#mask"])
+	local cmd = string.format("ifconfig br-lan %s netmask %s", map["a#ip"], map["a#mask"])
 	table.insert(cmd_arr, cmd)
 
 	local cmd = string.format("route del default;\nroute add default gw %s", map["a#gw"])
@@ -171,17 +170,17 @@ local function check_network(id, map)
 end
 
 local function set_config_ip()
-	os.execute("ifconfig br0:1 169.254.254.254 netmask 255.255.0.0")
+	os.execute("ifconfig br-lan:1 169.254.254.254 netmask 255.255.0.0")
 end
 
 local function promise(chk)
 	while true do 
 		se.sleep(30)
-		local s = read("ifconfig br0 | grep addr:", io.popen)
+		local s = read("ifconfig br-lan | grep addr:", io.popen)
 		if s and #s > 4 then 
 			break
 		end 
-		log.error("missing br0 addr %s", s or "")
+		log.error("missing br-lan addr %s", s or "")
 		chk:clear()
 	end
 end
