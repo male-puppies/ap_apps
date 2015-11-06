@@ -1,3 +1,4 @@
+package.path = "./?.lua;" .. package.path
 require("global")
 local se = require("se")
 local lfs = require("lfs53")

@@ -3,7 +3,7 @@ local log = require("log")
 local pkey = require("key")
 local sandc = require("sandc")
 local js = require("cjson53.safe") 
-local mosq = require("mosquitto")  
+local mosq = require("mosquitto53")  
 local const = require("constant") 
 local compare = require("compare")
 

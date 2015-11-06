@@ -1,7 +1,7 @@
 local se = require("se")
-local lfs = require("lfs") 
+local lfs = require("lfs53") 
 local log = require("log")
-local js = require("cjson.safe")
+local js = require("cjson53.safe")
 local socket = require("socket")
 local content = require("content")
 
@@ -29,8 +29,7 @@ local function read(path, func)
 end
 
 local function beacon()
-	local server = socket.udp()	assert(server)
-	local ret = server:setoption("broadcast", true)  	assert(ret)
+	local server = socket.udp()	assert(server) 
 	server:settimeout(0)
 
 	-- connect AC ok and able to broadcast
@@ -39,9 +38,9 @@ local function beacon()
 		if cnt_ins:isconnect() and enable_broadcast then 
 			local ret, err = server:setpeername(map.broadip, map.broadport)
 			local _ = ret or log.fatal("setpeername %s %s fail %s", map.broadip or "", map.broadport or "", err or "")
-			
+			local ret, err = server:setoption("broadcast", true)  	assert(ret, err)
 			local s = cnt_ins:get_content()
-			if s then 
+			if s then
 				-- print("broadcast", os.date(), s)
 				server:send(s)
 			end
@@ -54,8 +53,9 @@ end
 
 local function watch()
 	local client = socket.udp() 								assert(client)
-	local ret = client:setoption("broadcast", true) 			assert(ret)
+	
 	local ret = client:setsockname(map.broadip, map.broadport) 	assert(ret)
+	local ret = client:setoption("broadcast", true) 			assert(ret)
 	client:settimeout(1)
 
 	while true do
@@ -104,7 +104,7 @@ end
 
 local current_broad_ip
 local function get_broadcast()
-	local line = read("ifconfig br0 | grep Bcast", io.popen)
+	local line = read("ifconfig br-lan | grep Bcast", io.popen)
 	local ip, bip = line:match("addr:(%d+%.%d+%.%d+%.%d+)%s+Bcast:(%d+%.%d+%.%d+%.%d+)")
 	if not ip then 
 		return

@@ -763,7 +763,7 @@ static const struct luaL_Reg ctx_M[] = {
 	{NULL,		NULL}
 };
 
-int luaopen_mosquitto(lua_State *L)
+int luaopen_mosquitto53(lua_State *L)
 {
 	mosquitto_lib_init();
 	mosq_initialized = 1;

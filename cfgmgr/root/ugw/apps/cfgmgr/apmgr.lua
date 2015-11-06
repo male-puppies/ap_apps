@@ -203,7 +203,7 @@ function cmd_map.upgrade(map)
 	end 
 
 	local firmtype, password = get_firmwaretype(), 651882601
-	local cmd = string.format("nohup lua /ugw/scripts/online_upgrade.lua %s %s %s >/tmp/ugw/log/apmgr.error 2>&1 &", map.host, firmtype, password)
+	local cmd = string.format("nohup lua /ugw/script/online_upgrade.lua %s %s %s >/tmp/ugw/log/apmgr.error 2>&1 &", map.host, firmtype, password)
 	
 	math.randomseed(os.time())
 	local sleeptime = math.random(0, 30) + 0.001
@@ -322,6 +322,7 @@ local function start()
 	-- 监听配置更新消息
 	pcli:set_callback("on_message", on_message)
 	pcli:run()
+
 
 	-- 加载本地配置
 	cfg.load()

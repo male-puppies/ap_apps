@@ -38,7 +38,7 @@ mt.__index = {
 				table.remove(ins.publish_cache, 1)
 			else
 				local topic, payload, qos = item[1], item[2], item[3]
-				local ret = mqtt:publish(topic, payload, qos, false)
+				local ret, err = mqtt:publish(topic, payload, qos, false)
 				mqtt:loop(1)
 
 				if not ret then 
@@ -65,8 +65,9 @@ mt.__index = {
 		local d = se.time() - st
 		if ret then
 			ins.status = true
-			local ret = mqtt:subscribe(ins.topic, 2) 	assert(ret)
+			local ret = mqtt:subscribe(ins.topic, 0) 	assert(ret)
 			log.debug("reconnect and subscribe ok %s %s", d, ins.topic)
+			se.sleep(1)
 			return ins.on_connect()
 		end
 
@@ -77,7 +78,7 @@ mt.__index = {
 
 	run_as_routine = function(ins) 
 		local mqtt = mosq.new(ins.clientid, ins.clean)
-
+		
 		mqtt:callback_set("ON_MESSAGE", function(mid, topic, payload, qos, retain) ins.on_message(payload) end)
 		mqtt:callback_set("ON_DISCONNECT", function(...) ins.status = false ins.on_disconnect(...) end)
 

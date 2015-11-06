@@ -8,7 +8,7 @@ local const = require("constant")
 
 local pcli
 local keys = const.keys
-local cmd = "ifconfig br0 | grep addr: | awk '{print $2, $4}' ; route -n | grep  '^0.0.0.0' | awk '{print \"default:\",$2}'"
+local cmd = "ifconfig br-lan | grep addr: | awk '{print $2, $4}' ; route -n | grep  '^0.0.0.0' | awk '{print \"default:\",$2}'"
 
 local function read(path, func)
 	func = func and func or io.open

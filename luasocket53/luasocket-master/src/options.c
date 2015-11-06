@@ -319,7 +319,7 @@ int opt_set(lua_State *L, p_socket ps, int level, int name, void *val, int len)
 {
     if (setsockopt(*ps, level, name, (char *) val, len) < 0) {
         lua_pushnil(L);
-        lua_pushstring(L, "setsockopt failed");
+        lua_pushfstring(L, "setsockopt failed %d %d", *ps, errno);
         return 2;
     }
     lua_pushnumber(L, 1);

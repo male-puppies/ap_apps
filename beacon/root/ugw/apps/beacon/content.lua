@@ -1,7 +1,7 @@
 local se = require("se")
 local log = require("log")
-local lfs = require("lfs")
-local js = require("cjson.safe")
+local lfs = require("lfs53")
+local js = require("cjson53.safe")
 
 local ext_fields = {
 	"apid",
