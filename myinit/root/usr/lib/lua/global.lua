@@ -1,7 +1,6 @@
 --[[
 	global value detection, by yjs, 20140716
---]]
-
+--]]  
 -- pre-defined global value
 local global_value = {
 	_=1,
@@ -28,8 +27,7 @@ local global_value = {
 	loadfile=1,
 	rawequal=1,
 	loadstring=1,
-	rawset=1,
-	unpack=1,
+	rawset=1, 
 	table=1,
 	require=1,
 	_VERSION=1,

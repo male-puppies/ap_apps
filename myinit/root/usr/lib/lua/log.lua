@@ -30,10 +30,10 @@ local function logfmt(level, fmt, ...)
 	local s, func
 	func = function()
 		if info.currentline == 0 then 
-			s = string.format("%s %s %02d%02d-%02d:%02d:%02d %s " .. fmt, level, mod, t.month, t.day, t.hour, t.min, t.sec, src, unpack(vars))
+			s = string.format("%s %s %02d%02d-%02d:%02d:%02d %s " .. fmt, level, mod, t.month, t.day, t.hour, t.min, t.sec, src, table.unpack(vars))
 			return
 		end
-		s = string.format("%s %s %02d%02d-%02d:%02d:%02d %s %d " .. fmt, level, mod, t.month, t.day, t.hour, t.min, t.sec, src, info.currentline, unpack(vars))
+		s = string.format("%s %s %02d%02d-%02d:%02d:%02d %s %d " .. fmt, level, mod, t.month, t.day, t.hour, t.min, t.sec, src, info.currentline, table.unpack(vars))
 	end
 	local ret, msg = prt:call(func)
 	if ret then

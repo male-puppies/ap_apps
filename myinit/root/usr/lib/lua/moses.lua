@@ -368,17 +368,17 @@ function _.invoke(t, method, ...)
     if _.isTable(v) then
       if _.has(v,method) then
         if _.isCallable(v[method]) then
-          return v[method](v,unpack(args))
+          return v[method](v,table.unpack(args))
         else
           return v[method]
         end
       else
         if _.isCallable(method) then
-          return method(v,unpack(args))
+          return method(v,table.unpack(args))
         end
       end
     elseif _.isCallable(method) then
-      return method(v,unpack(args))
+      return method(v,table.unpack(args))
     end
   end)
 end
@@ -467,7 +467,7 @@ function _.groupBy(t, iter, ...)
   local vararg = {...}
   local _t = {}
   _.each(t, function(i,v)
-      local _key = iter(i,v, unpack(vararg))
+      local _key = iter(i,v, table.unpack(vararg))
       if _t[_key] then _t[_key][#_t[_key]+1] = v
       else _t[_key] = {v}
       end
@@ -485,7 +485,7 @@ function _.countBy(t, iter, ...)
   local vararg = {...}
   local stats = {}
   _.each(t,function(i,v)
-      local key = iter(i,v,unpack(vararg))
+      local key = iter(i,v,table.unpack(vararg))
       stats[key] = (stats[key] or 0) +1
     end)
   return stats
@@ -695,7 +695,7 @@ function _.pop(array, n)
     ret[#ret + 1] = retValue
     t_remove(array,1)
   end
-  return unpack(ret)
+  return table.unpack(ret)
 end
 
 --- Removes and returns the values at the end of a given array.
@@ -712,7 +712,7 @@ function _.unshift(array, n)
     ret[#ret + 1] = retValue
     t_remove(array)
   end
-  return unpack(ret)
+  return table.unpack(ret)
 end
 
 --- Removes all provided values in a given array.
@@ -1133,7 +1133,7 @@ function _.once(f)
   return function(...)
       _internal = _internal+1
       if _internal<=1 then _args = {...} end
-      return f(unpack(_args))
+      return f(table.unpack(_args))
     end
 end
 
@@ -1219,7 +1219,7 @@ end
 function _.juxtapose(value, ...)
   local res = {}
   _.each({...}, function(_,f) res[#res+1] = f(value) end)
-  return unpack(res)
+  return table.unpack(res)
 end
 
 --- Wraps `f` inside of the `wrapper` function. It passes `f` as the first argument to `wrapper`.
@@ -1271,7 +1271,7 @@ end
 function _.bindn(f, ...)
   local iArg = {...}
   return function (...)
-      return f(unpack(_.append(iArg,{...})))
+      return f(table.unpack(_.append(iArg,{...})))
     end
 end
 

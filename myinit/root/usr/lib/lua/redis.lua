@@ -635,7 +635,7 @@ do
                 table_insert(watch_keys, key)
             end
             if #watch_keys > 0 then
-                client:watch(unpack(watch_keys))
+                client:watch(table.unpack(watch_keys))
             end
         end
 
@@ -875,7 +875,7 @@ function redis.connect(...)
             end
         end
     elseif #args > 1 then
-        local host, port, timeout = unpack(args)
+        local host, port, timeout = table.unpack(args)
         parameters = { host = host, port = port, timeout = tonumber(timeout) }
     end
 

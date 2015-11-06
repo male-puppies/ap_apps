@@ -97,7 +97,7 @@ mt.__index = {
 		else
 			assert(cmd ~= "blpop")
 		end 
-		local res, err = ins.rds:call(cmd, unpack(args)) 
+		local res, err = ins.rds:call(cmd, table.unpack(args)) 
 		ins.current_item = nil
 		
 		ins:next_item() 	-- 查询完毕，如果查询队列中还有其他的语句，取下一条设置上
@@ -120,12 +120,12 @@ mt.__index = {
 	blpop = function(ins, karr, sec)
 		local narr = arr2strarr(karr)
 		table.insert(narr, tostring(sec))
-		return check_ret(ins, ins:call("blpop", unpack(narr)))
+		return check_ret(ins, ins:call("blpop", table.unpack(narr)))
 	end,
 
 	lpop = function(ins, karr)
 		local narr = arr2strarr(karr)
-		return check_ret(ins, ins:call("lpop", unpack(narr)))
+		return check_ret(ins, ins:call("lpop", table.unpack(narr)))
 	end,
 
 	keys = function(ins, pattern)
@@ -133,11 +133,11 @@ mt.__index = {
 	end,
 
 	mset = function(ins, kvmap)  
-		return check_ret(ins, ins:call("mset", unpack(map2strarr(kvmap))))
+		return check_ret(ins, ins:call("mset", table.unpack(map2strarr(kvmap))))
 	end,
 
 	mget = function(ins, karr)
-		return check_ret(ins, ins:call("mget", unpack(arr2strarr(karr))))
+		return check_ret(ins, ins:call("mget", table.unpack(arr2strarr(karr))))
 	end,
 
 	hset = function(ins, hkey, k, v)
@@ -149,11 +149,11 @@ mt.__index = {
 	end,
 
 	hmset = function(ins, hkey, kvmap)
-		return check_ret(ins, ins:call("hmset", hkey, unpack(map2strarr(kvmap))))
+		return check_ret(ins, ins:call("hmset", hkey, table.unpack(map2strarr(kvmap))))
 	end,
 
 	hmget = function(ins, hkey, karr)
-		return check_ret(ins, ins:call("hmget", hkey, unpack(arr2strarr(karr))))
+		return check_ret(ins, ins:call("hmget", hkey, table.unpack(arr2strarr(karr))))
 	end,	
 
 	expire = function(ins, key, sec)
@@ -173,7 +173,7 @@ mt.__index = {
 	end,
 
 	del = function(ins, karr)
-		return check_ret(ins, ins:call("del", unpack(arr2strarr(karr))))
+		return check_ret(ins, ins:call("del", table.unpack(arr2strarr(karr))))
 	end,
 
 	select = function(ins, id)
