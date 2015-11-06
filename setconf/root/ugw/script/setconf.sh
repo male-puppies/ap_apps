@@ -7,5 +7,11 @@ errorfile=/tmp/ugw/log/apmgr.error
 
 test -d /tmp/ugw/log/ || mkdir -p /tmp/ugw/log/ 
 cd /ugw/apps/setconf/
-lua /ugw/apps/setconf/main.lua >/dev/null 2>>$errorfile
 
+
+cd /ugw/apps/setconf/
+while :; do 
+	echo "`date` `uptime` start setconf" >>$errorfile
+	lua53 /ugw/apps/setconf/main.lua >/dev/null 2>>$errorfile
+	sleep 2
+done

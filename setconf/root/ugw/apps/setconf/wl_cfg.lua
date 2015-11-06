@@ -3,7 +3,7 @@ local uci = require("uci");
 local se = require("se") 
 local log = require("log")
 local pkey = require("key") 
-local js = require("cjson.safe")  
+local js = require("cjson53.safe") 
 local const = require("constant") 
 local country = require("country");
 local support = require("support");
@@ -380,4 +380,13 @@ local function check(nmap)
 end
 
 
-return {check = check}
+local function init()
+	wl_uci = uci.cursor(nil, "/var/state");
+	if not wl_uci then
+		log.error("wl uci init failed");
+		return false;
+	end
+	return true;
+end
+
+return {check = check, init = init}
