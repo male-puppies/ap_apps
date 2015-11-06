@@ -1,14 +1,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luasocket53
-PKG_VERSION:=0.1
-PKG_RELEASE:=0
+PKG_VERSION:=0.2
+PKG_RELEASE:=1
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=
-PKG_MAINTAINER:=Ivan <itgb1989@gmail.com>
+PKG_MAINTAINER:=roberto
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME) 
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -20,7 +20,7 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-	luasocket library
+	lua binding for socket 
 endef
 
 define Build/Compile 
