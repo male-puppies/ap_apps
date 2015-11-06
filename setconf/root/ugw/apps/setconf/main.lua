@@ -2,15 +2,15 @@ package.path = "./?.lua;../apshare/?.lua;" .. package.path
 require("global")
 local se = require("se") 
 local log = require("log") 
-local reset = require("reset")
 local reboot = require("reboot")
-local js = require("cjson.safe")  
+local js = require("cjson53.safe") 
 local const = require("constant")   
 local compare = require("compare")
 local support = require("support") 
 local memfile = require("memfile")
 local blacklist = require("blacklist")
 local led = require("led_ctrl")
+local cfg_commit = require("wl_cfg");
 
 local keys = const.keys
 local mf_commit = memfile.ins("commit")
@@ -61,13 +61,14 @@ local function main()
 	reboot.run(g_apid, get_new_cfg()) 
 	se.go(blacklist.run)
 	se.go(led.run)
+	cfg_commit.init()
 	local chk = compare.new_chk_file("sf")
 	while true do
 		if chk:check() then 
 			log.debug("config change")
 			local nmap = get_new_cfg()
 			if nmap then 
-				reset.check(nmap)
+				cfg_commit.reset(nmap);
 				reboot.check(nmap)
 				se.go(blacklist.clear)
 			end

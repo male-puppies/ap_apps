@@ -1,5 +1,5 @@
 local log = require("log")
-local lfs = require("lfs")
+local lfs = require("lfs53")
 local js = require("cjson.safe")
 local support = require("support") 
 
