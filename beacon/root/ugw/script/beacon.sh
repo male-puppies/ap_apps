@@ -10,6 +10,6 @@ cd /ugw/apps/beacon/
 
 while :; do 
 	echo "`date` `uptime` start beacon" >>$errorfile
-	lua /ugw/apps/beacon/main.lua >/dev/null 2>>$errorfile
+	lua53 /ugw/apps/beacon/main.lua >/dev/null 2>>$errorfile
 	sleep 2
 done
