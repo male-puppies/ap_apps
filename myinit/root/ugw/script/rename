@@ -2,4 +2,4 @@
 mdir=$1 
 test -d $mdir || exit -1
 cd $mdir
-lua53 /ugw/script/rename.lua . >/dev/null 2>&1
+lua53 /ugw/script/rename.lua . >/dev/null 2>&1 &

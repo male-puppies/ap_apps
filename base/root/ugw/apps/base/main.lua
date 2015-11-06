@@ -9,7 +9,7 @@ local compare = require("compare")
 
 local keys = const.keys
 local beacon_config = "/tmp/memfile/beacon.json"
-local ap_config = "/ugwconfig/etc/ap/ap_config.json"
+local ap_config = "/etc/config/ap_config.json"
 
 local cfg_map = {}
 local local_mqtt, remote_mqtt 
@@ -146,7 +146,7 @@ local function ping_remote()
 		if fail_count > 10 or now - lasttime > 30 then
 			local cmd = string.format("touch %s &", ap_config)
 			os.execute(cmd)
-			log.debug("%d %d", fail_count, now - lasttime)
+			log.debug("%d %s", fail_count, now - lasttime)
 			fail_count, lasttime = 0, now
 		end
 	end
