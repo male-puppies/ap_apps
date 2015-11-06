@@ -7,5 +7,9 @@ errorfile=/tmp/ugw/log/apmgr.error
 
 test -d /tmp/ugw/log/ || mkdir -p /tmp/ugw/log/ 
 cd /ugw/apps/beacon/
-lua /ugw/apps/beacon/main.lua >/dev/null 2>>$errorfile
 
+while :; do 
+	echo "`date` `uptime` start beacon" >>$errorfile
+	lua /ugw/apps/beacon/main.lua >/dev/null 2>>$errorfile
+	sleep 2
+done
