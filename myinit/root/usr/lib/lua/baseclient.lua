@@ -1,7 +1,7 @@
 local se = require("se")
 local log = require("log")
 local js = require("cjson53.safe") 
-local mosq = require("mosquitto")  
+local mosq = require("mosquitto53")  
 
 local function yield()
 	se.sleep(0.000001)
