@@ -371,12 +371,10 @@ end
 
 
 local function check(nmap)
-	local _ = mf_commit:get(dev_cfg_map) 
-				or mf_commit:set(dev_cfg_map, {s_const.dev0 = {}, s_const.dev1 = {}}):save();
-
-	local _ = mf_commit:get(iface_cfg_map) 
-				or mf_commit:set(iface_cfg_map, {}):save();
-	reset(nmap);
+	local res
+	res = mf_commit:get(dev_cfg_map) or mf_commit:set(dev_cfg_map, {[s_const.dev0] = {}, [s_const.dev1] = {}}):save()
+	res = mf_commit:get(iface_cfg_map) or mf_commit:set(iface_cfg_map, {}):save()
+	reset(nmap)
 end
 
 
