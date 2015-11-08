@@ -1,8 +1,8 @@
 local se = require("se")
-local lfs = require("lfs")
+local lfs = require("lfs53")
 local log = require("log")
 local logrpt = require("logrpt")
-local js = require("cjson.safe") 
+local js = require("cjson53.safe") 
 local const = require("constant")
 
 local keys = const.keys

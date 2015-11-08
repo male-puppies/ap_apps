@@ -1,5 +1,5 @@
 local log = require("log")
-local lfs = require("lfs") 
+local lfs = require("lfs53") 
 local const = require("constant")  
 local memfile = require("memfile")
 

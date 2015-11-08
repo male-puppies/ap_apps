@@ -1,5 +1,5 @@
 local se = require("se")
-local js = require("cjson.safe")
+local js = require("cjson53.safe")
 local memfile = require("memfile")
 
 local report_cfg

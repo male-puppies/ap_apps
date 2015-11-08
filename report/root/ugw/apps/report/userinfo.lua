@@ -1,6 +1,6 @@
 local se = require("se")
 local log = require("log")
-local js = require("cjson.safe")
+local js = require("cjson53.safe")
 local memfile = require("memfile") 
 local support = require("support")
 local radioinfo = require("radioinfo")
@@ -69,39 +69,86 @@ local function update_user(map)
 	mf_user:set("current", cmap)
 end
 
+local function get_sta_num(assoclist)
+	local sta_num = 0;
+	if not assoclist then
+		return sta_num;
+	end
+	for line in assoclist:gmatch("(.-)\n") do 
+		local snr = line:match("SNR")
+		if snr then
+			sta_num = sta_num + 1;
+		end
+	end
+	return sta_num
+end
+
+--[[
+iwinfo  | grep wlan | awk '{print $1, $3}'
+wlan0 "OpenWrt"
+wlan0-1 "OpenWrt-t5g-tgb-2"
+wlan1 "OpenWrt-2g"
+wlan1-1 "OpenWrt-2g-2"
+
+38:BC:1A:1B:51:62  -78 dBm / -116 dBm (SNR 38)  120 ms ago
+	RX: 175.5 MBit/s, MCS 0, 20MHz                  1892 Pkts.
+	TX: 6.0 MBit/s, MCS 0, 20MHz                     901 Pkts.
+
+DC:2B:2A:78:D8:05  -70 dBm / -116 dBm (SNR 46)  280 ms ago
+	RX: 24.0 MBit/s, MCS 0, 20MHz                    347 Pkts.
+	TX: 6.0 MBit/s, MCS 0, 20MHz                     277 Pkts.
+]]--
 local function collect_ifname_map()
-	local s = read("iwconfig 2>&1 | grep ath | awk '{print $1}'", io.popen)
-	if not (s and #s > 2) then
+	local ifnames = read("iwinfo 2>&1 | grep wlan | awk '{print $1, $3}'", io.popen)
+	if not (ifnames and #ifnames > 2) then
 		return
 	end
 
 	local ifname_map = {}
-	for line in s:gmatch("(.-)\n") do 
-		local name = line 
-		local n = tonumber(name:match("ath[25](%d+)"))
-		local wlanid = string.format("%05d", n)
-		local cmd = string.format("wlanconfig %s list | grep -v ADDR | awk '{print $1, $6, $8, $9}'", name)
-		if cmd then
-			local s = read(cmd, io.popen)
-			if not s then 
-				return
-			end
+	--process one vap per loop
+	for if_line in ifnames:gmatch("(.-)\n") do 
+		local vap_name = if_line:match('%s*(wlan[01]%-*%d*)%s');
+		local essid = if_line:match('%s"(.-)"');
+		print(vap_name , essid)
+		local sta_map , sta_num = {}, 0;
+		local info_cmd = string.format("iwinfo %s assoclist", vap_name);
+		if info_cmd then
+			local assoclist  = read(info_cmd, io.popen);
+			if assoclist then
+				local idx, sta_cnt = 0, 0;
+				sta_num = get_sta_num(assoclist);
+				print("sta_num:",sta_num)
+				if sta_num > 0 then
+					--everyp user info include three lines valid info and one blank line
+					local mac, snr, rxq, txq
+					for sta_line in assoclist:gmatch('(.-)\n') do
+						if idx == 0 then
+							mac = sta_line:match('%s*(%x+:%x+:%x+:%x+:%x+:%x+)');
+							snr = sta_line:match('SNR%s(%d+)');
+						elseif idx == 1 then
+							rxq = sta_line:match('MHz%s+(%d+)%sPkts');
+						elseif idx == 2 then
+							txq = sta_line:match('MHz%s+(%d+)%sPkts');
+						end 
+						if idx == 3 then
+							print(mac, snr, rxq, txq, essid)
+							if mac then
+								sta_map[mac] = {rssi = tonumber(snr), txq = tonumber(txq), rxq = tonumber(rxq), ssid = essid};
+							end
+							idx = 0;
+						else
+							idx = idx + 1;
+						end
 
-			local map = {}
-			for line in s:gmatch("(.-)\n") do 
-				--存在rate为负数的异常，需要忽略“-”
-				local mac, rssi, txq, rxq  = line:match("(.+)%s%-*(%d+)%s(%d+)%s(%d+)") 
-				if mac then 
-					map[mac] = {rssi = tonumber(rssi) - 100, txq = tonumber(txq), rxq = tonumber(rxq), ssid = report_cfg[wlanid] or ""}
-				end 
+					end
+				end
 			end
-
-			ifname_map[name] = map
 		end
+		ifname_map[vap_name] = sta_map;
 	end
-
 	return ifname_map
 end
+
 
 local function get_user_info(step)
 	local cmap, omap = mf_user:get("current"), mf_user:get("last")
@@ -133,7 +180,7 @@ local function get_user_info(step)
 
 	local band_map = {}
 	for name, map in pairs(cmap) do
-		local band = name:find("^ath2%d%d%d$") and "2g" or (name:find("^ath5%d%d%d$") and "5g" or nil)
+		local band = name:find("^wlan0$") and "2g" or (name:find("^wlan1$") and "5g" or nil)
 		if band then 
 			local arr = get_band_arr(name, map)
 			--band_map[band] = arr

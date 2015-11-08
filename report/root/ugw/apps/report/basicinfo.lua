@@ -18,15 +18,16 @@ local function read(path, func)
 end
 
 local function get_version()
-	local s = read("/ugw/etc/version")
+	local s = read("cat /etc/openwrt_release | grep DISTRIB_DESCRIPTION")
 	if not s then 
 		return "-"
 	end 
-	return s:gsub("[ \n]", "")
+	--DISTRIB_DESCRIPTION='OpenWrt AP5.0 20151105'
+	return s:math(".+%'(.+)%'.*")
 end
 
 local function get_ip()
-	local s = read("ifconfig br0 | grep 'inet addr' | awk '{print $2}'", io.popen)
+	local s = read("ifconfig br-lan | grep 'inet addr' | awk '{print $2}'", io.popen)
 	if not s then 
 		return "-"
 	end 
