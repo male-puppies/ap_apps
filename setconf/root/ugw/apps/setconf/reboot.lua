@@ -4,7 +4,7 @@ local js = require("cjson53.safe")
 local const = require("constant")   
 local keys = const.keys
 
-local g_map, g_apid
+local g_map, g_apid = {}
 
 local function read(path, func)
 	func = func and func or io.open
@@ -22,12 +22,12 @@ local function mac_mod(mac, m)
 	for _, v in ipairs({string.byte(mac, 1, #mac)}) do 
 		sum = sum * 5 + (v - 48)
 	end
-	return math.mod(sum, m)
+	return math.fmod(sum, m)
 end
 
 local function postpone(h, m, p)
 	local sum = h * 60 + m + p
-	local h, m = math.floor(sum / 60), math.mod(sum, 60)
+	local h, m = math.floor(sum / 60), math.fmod(sum, 60)
 	if h >= 24 then 
 		h = h - 24
 	end
@@ -64,6 +64,9 @@ end
 
 local function run(apid, m)
 	g_apid, g_map = apid, m
+	if not g_map then
+		g_map = {}
+	end
 	se.go(function() 
 		local p = mac_mod(apid, 60)
 		while true do 
