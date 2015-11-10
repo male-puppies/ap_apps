@@ -8,7 +8,6 @@ local const = require("constant")
 local country = require("country")
 local support = require("support")
 local memfile = require("memfile")
-local hostapd = require("hostapd")
 local compare = require("compare")
 local version = require("version")
 
@@ -448,7 +447,6 @@ local function reset(nmap)
 	save_cfg_to_memfile()
 	log.debug("%s", "commit ok")
 	local map = {radio = wifi_dev_cfg, wlan = wifi_iface_cfg}
-	hostapd.reset(map)
 end
 
 
