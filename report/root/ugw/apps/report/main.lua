@@ -7,7 +7,6 @@ local js = require("cjson53.safe")
 local const = require("constant")
 local support = require("support")
 local reportclient = require("reportclient")
-local watchnetlink = require("watchnetlink")
 local radioinfo = require("radioinfo")
 local userinfo = require("userinfo")
 local basicinfo = require("basicinfo")
@@ -127,8 +126,7 @@ local function main()
 	pcli:run()
 
 	local ret = reload() 		assert(reload)
-
-	se.go(watchnetlink.start)
+	
 	pcli:set_callback("on_message", on_message)
 	se.go(check_switch_timeout)
 	se.go(radioinfo.start, report_cfg)

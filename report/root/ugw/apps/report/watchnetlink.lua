@@ -2,7 +2,7 @@ local se = require("se")
 local log = require("log")
 local sk = require("socket")
 local struct = require("struct")
-local js = require("cjson.safe")
+local js = require("cjson53.safe")
 local radioinfo = require("radioinfo")
 local userinfo = require("userinfo")
 
