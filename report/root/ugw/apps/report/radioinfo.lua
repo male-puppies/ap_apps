@@ -18,7 +18,7 @@ local function read(path, func)
 end
 
 local function collect_running_info()
-	local s = read("iwconfig 2>/dev/null", io.popen)
+	local s = read("iwinfo 2>/dev/null", io.popen)
 	if not s then 
 		return
 	end
@@ -27,25 +27,30 @@ local function collect_running_info()
 		essid = 'ESSID:"(.-)"', 
 		bssid = 'Point: (..:..:..:..:..:..)', 
 		bitrate = 'Rate:(%d+)', 
-		ifname = '(ath[25]%d%d%d)',
+		ifname = '(wlan[01]%-*%d*)',
 	}
 
 	local sp, ep = 1
 	local tmp_map = {}
 	while true do 
-		sp, ep = s:find("ath%d%d%d%d", sp)
+		sp, ep = s:find("wlan[01]%-*%d*", sp)
 		if not sp then 
 			break
 		end
 		local tmp = s:sub(sp)
 		local map = {}
 		for field, pattern in pairs(cond_map) do  
-			map[field] = tmp:match(pattern)
+			map[field] = tmp:match(pattern) or "unknown"
 		end
 
 		if map.ifname then
 			local ssid = ""
-			local n = tonumber(map.ifname:match("ath%d(%d+)")) 
+			local n = map.ifname:match('wlan[01]%-*(%d+)')
+			if n then
+				n = tonumber(n)
+			else
+				n = 0
+			end
 			if n then 
 				local wlanid = string.format("%05d", n)
 				ssid = report_cfg[wlanid]

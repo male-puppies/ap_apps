@@ -20,12 +20,30 @@ local function read(path, func)
 	return s
 end
 
+--wlan0,wlan1,wlan0-1,wlan1-1
+local function vap_to_iface(vap)
+	local prefix, wlanid
+	if vap:find("wlan0") then
+		prefix = "ath2%03d"
+	elseif vap:find("wlan1") then
+		prefix = "ath5%03d"
+	end
+	wlanid = vap:match('wlan[01]%-*(%d+)')
+	print(vap,wlanid)
+	if wlanid then
+		wlanid = tonumber(wlanid)
+	else
+		wlanid = 0
+	end
+	return string.format(prefix, wlanid)
+end
+
 local function get_ifname(bssid)
 	local bssid_map = mf_user:get("bssid") or mf_user:set("bssid", {}):get("bssid")
 	if bssid_map[bssid] then 
 		return bssid_map[bssid]
 	end 
-	local s = read("iwconfig 2>&1 | grep -B 1 'Access Point'", io.popen)
+	local s = read("iwinfo 2>&1 | grep -B 1 'Access Point'", io.popen)
 	if not s then 
 		return 
 	end
@@ -34,9 +52,12 @@ local function get_ifname(bssid)
 	
 	local nmap = {}
 	for line in s:gmatch("(.-)\n") do 
-		local ifname, mac = line:match("(ath%d%d%d%d).+Point: (.-)%s")
-		if ifname then 
-			nmap[mac:lower()] = ifname
+		local vap_name, mac = line:match("(wlan[01]%-*%d*).+Point: (.-)%s")
+		if vap_name then 
+			local ifname = vap_to_iface(vap_name)
+			if ifname then
+				nmap[mac:lower()] = ifname
+			end
 		end 
 	end 
 
@@ -133,7 +154,8 @@ local function collect_ifname_map()
 						if idx == 3 then
 							print(mac, snr, rxq, txq, essid)
 							if mac then
-								sta_map[mac] = {rssi = tonumber(snr), txq = tonumber(txq), rxq = tonumber(rxq), ssid = essid};
+								local iface = vap_to_iface(vap_name) or "-"
+								sta_map[mac] = {rssi = tonumber(snr), txq = tonumber(txq), rxq = tonumber(rxq), ssid = iface};
 							end
 							idx = 0;
 						else

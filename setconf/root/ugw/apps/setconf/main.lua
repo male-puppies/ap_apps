@@ -1,4 +1,4 @@
-package.path = "./?.lua;../apshare/?.lua;" .. package.path
+package.path = "./?.lua;" .. package.path
 require("global")
 local se = require("se") 
 local log = require("log") 
@@ -8,8 +8,6 @@ local const = require("constant")
 local compare = require("compare")
 local support = require("support") 
 local memfile = require("memfile")
-local blacklist = require("blacklist")
-local led = require("led_ctrl")
 local cfg_commit = require("wl_cfg");
 
 local keys = const.keys
@@ -38,7 +36,7 @@ local function get_apid()
 end
 
 local function get_new_cfg()
-	local path = "/ugwconfig/etc/ap/ap_config.json"
+	local path = "/etc/config/ap_config.json"
 	local s = read(path)
 	if not s then
 		log.error("read %s fail", path)
@@ -59,8 +57,6 @@ local function main()
 	support.init_band_support()
 
 	reboot.run(g_apid, get_new_cfg()) 
-	se.go(blacklist.run)
-	se.go(led.run)
 	cfg_commit.init()
 	local chk = compare.new_chk_file("sf")
 	while true do
@@ -68,9 +64,8 @@ local function main()
 			log.debug("config change")
 			local nmap = get_new_cfg()
 			if nmap then 
-				cfg_commit.reset(nmap);
+				cfg_commit.check(nmap);
 				reboot.check(nmap)
-				se.go(blacklist.clear)
 			end
 		end
 		se.sleep(1)

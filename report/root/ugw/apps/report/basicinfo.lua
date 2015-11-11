@@ -1,6 +1,7 @@
 local se = require("se")
 local memfile = require("memfile")
 local radiomode = require("radiomode") 
+local version = require("version")
 
 local report_cfg
 local running_map = {}
@@ -18,12 +19,11 @@ local function read(path, func)
 end
 
 local function get_version()
-	local s = read("cat /etc/openwrt_release | grep DISTRIB_DESCRIPTION")
-	if not s then 
-		return "-"
-	end 
-	--DISTRIB_DESCRIPTION='OpenWrt AP5.0 20151105'
-	return s:math(".+%'(.+)%'.*")
+	local valid, soft_v = version.get_soft_version()
+	if not valid then
+		soft_v = "-"
+	end
+	return soft_v
 end
 
 local function get_ip()
