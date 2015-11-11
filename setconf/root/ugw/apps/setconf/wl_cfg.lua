@@ -352,6 +352,7 @@ local function create_wifi_dev_sections()
 		cfg_map = wifi_dev_cfg[wifi_dev]
 		if cfg_map then
 			print("create section ", wifi_dev)
+			--wl_uci:add(s_const.config,  s_const.dev_t)
 			wl_uci:set(s_const.config, wifi_dev, s_const.dev_t)
 			--wl_uci:set(s_const.config, wifi_dev, "type", "mac80211")
 			wl_uci:set(s_const.config, wifi_dev, "country", cfg_map["country"])

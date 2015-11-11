@@ -23,9 +23,11 @@ end
 --wlan0,wlan1,wlan0-1,wlan1-1
 local function vap_to_iface(vap)
 	local prefix, wlanid
-	if vap:find("wlan0") then
+	local iface_2g = support.get_iface("2g")
+	local iface_5g = support.get_iface("5g")
+	if vap:find(iface_2g) then
 		prefix = "ath2%03d"
-	elseif vap:find("wlan1") then
+	elseif vap:find(iface_5g) then
 		prefix = "ath5%03d"
 	end
 	wlanid = vap:match('wlan[01]%-*(%d+)')
@@ -34,7 +36,7 @@ local function vap_to_iface(vap)
 	else
 		wlanid = 0
 	end
-	print("vap_to_iface:", vap, wlanid)
+	--print("vap_to_iface:", vap, wlanid)
 	return string.format(prefix, wlanid)
 end
 
@@ -130,7 +132,7 @@ local function collect_ifname_map()
 	for if_line in ifnames:gmatch("(.-)\n") do 
 		local vap_name = if_line:match('%s*(wlan[01]%-*%d*)%s');
 		local essid = if_line:match('%s"(.-)"');
-		print("collect_ifname_map:",vap_name , essid, if_line)
+		--print("collect_ifname_map:",vap_name , essid, if_line)
 		local sta_map , sta_num = {}, 0;
 		local info_cmd = string.format("iwinfo %s assoclist", vap_name);
 		if info_cmd then
@@ -232,6 +234,7 @@ local function get_user_info(step)
 	-- log.debug("cmap:%s", js.encode(cmap))
 	-- log.debug("omap:%s", js.encode(omap))
 	-- log.debug("bmap:%s", js.encode(band_map))
+	print("band_map ", js.encode(band_map))
 	return band_map
 end
 
@@ -248,7 +251,7 @@ local function start(map)
 		if n then
 			local o = mf_user:get("current")
 			local _ = o and mf_user:set("last", o)
-			mf_user:set("current", n)
+			mf_user:set("current", n):save()
 		end
 
 		-- local band_map = get_user_info(step)

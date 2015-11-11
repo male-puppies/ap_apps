@@ -1,6 +1,8 @@
 local se = require("se")
 local memfile = require("memfile")
 local radiomode = require("radiomode") 
+local js = require("cjson53.safe")
+local support = require("support")
 
 local report_cfg
 local running_map = {}
@@ -18,7 +20,7 @@ local function read(path, func)
 end
 
 local function is_debug_enable()
-	local fp, err=io.open("/tmp/g_debug")
+	local fp, err = io.open("/tmp/g_debug")
 	if fp then
 		return true
 	else
@@ -26,56 +28,25 @@ local function is_debug_enable()
 	end
 end
 
-local function collect_running_info()
-	local s = read("iwinfo 2>/dev/null", io.popen)
-	if not s then 
-		return
+--wlan0,wlan1,wlan0-1,wlan1-1
+local function vap_to_iface(vap)
+	local prefix, wlanid
+	local iface_2g = support.get_iface("2g")
+	local iface_5g = support.get_iface("5g")
+	if vap:find(iface_2g) then
+		prefix = "ath2%03d"
+	elseif vap:find(iface_5g) then
+		prefix = "ath5%03d"
 	end
-
-	local cond_map = {
-		essid = 'ESSID:"(.-)"', 
-		bssid = 'Point: (..:..:..:..:..:..)', 
-		bitrate = 'Rate:(%d+)', 
-		ifname = '(wlan[01]%-*%d*)',
-	}
-
-	local sp, ep = 1
-	local tmp_map = {}
-	while true do 
-		sp, ep = s:find("wlan[01]%-*%d*", sp)
-		if not sp then 
-			break
-		end
-		local tmp = s:sub(sp)
-		local map = {}
-		for field, pattern in pairs(cond_map) do  
-			map[field] = tmp:match(pattern) or "unknown"
-		end
-
-		if map.ifname then
-			local ssid = ""
-			local n = map.ifname:match('wlan[01]%-*(%d+)')
-			if n then
-				n = tonumber(n)
-			else
-				n = 0
-			end
-			if n then 
-				local wlanid = string.format("%05d", n)
-				ssid = report_cfg[wlanid]
-			end
-			tmp_map[map.ifname] = {
-				bssid = map.bssid and map.bssid:lower(), 
-				bitrate = map.bitrate and tonumber(map.bitrate),
-				essid = ssid
-			}
-		end
-
-		sp = ep
-	end 
-	running_map = tmp_map
+	wlanid = vap:match('wlan[01]%-*(%d+)')
+	if wlanid then
+		wlanid = tonumber(wlanid)
+	else
+		wlanid = 0
+	end
+	--print("vap_to_iface:", vap, wlanid)
+	return string.format(prefix, wlanid)
 end
-
 
 local function reboot_ap_on_error()
 	os.execute("touch /jffs2/ugwconfig/etc/ap/reboot_nr") 
@@ -94,44 +65,138 @@ local function reboot_ap_on_error()
 end
 
 
-local function update_radio(map)
-	assert(type(map) == "table")
-	local band = map.type == 0 and "2g" or "5g"
-
-	local proto = report_cfg[band .. ".proto"]
-	local bandwidth = report_cfg[band .. ".bandwidth"]
-
-	assert(proto and bandwidth)
-	if map.mode:upper() == "AUTO" then 
-		proto, bandwidth = map.mode, bandwidth
-	else 
-		proto, bandwidth = radiomode.get_proto_bandwith(band, map.mode, proto, bandwidth)
+local function collect_wifi_dev_info()
+	local devs_info_t = {["2g"] = {}, ["5g"] = {}}
+	local bands = {"2g", "5g"}
+	for _, band in ipairs(bands) do
+		local dev = support.get_iface(band)
+		if dev then
+			local s, power_cmd, proto_cmd, nos_cmd, iw_cmd
+			power_cmd = string.format("iwinfo %s info | grep Tx-Power | awk '{print $2}' 2>&1", dev)
+			s = read(power_cmd, io.popen)
+			if s then
+				devs_info_t[band].power = tonumber(s) or 0
+			else
+				devs_info_t[band].power = "-"
+			end
+			
+			proto_cmd = string.format("iwinfo %s info | grep \"HW Mode\" | awk '{print $5}'", dev)
+			s = read(proto_cmd, io.popen)
+			if s then
+				devs_info_t[band].proto = s
+			else
+				devs_info_t[band].proto = "-"
+			end
+			
+			nos_cmd = string.format("iwinfo %s info | grep Noise | awk '{print $4}'", dev)
+			s = read(nos_cmd, io.popen)
+			if s then
+				devs_info_t[band].nos = tonumber(s) or "-"
+			else
+				devs_info_t[band].nos = "-"
+			end
+			
+			iw_cmd = string.format("iw %s info | grep channel", dev)
+			s = read(iw_cmd, io.popen)
+			if s then
+				local cid, bdw = s:match("channel%s(%d+).-width:%s(%d+)")
+				if cid then
+					cid = tonumber(cid) or "-"
+				else
+					cid = "-"
+				end
+				if not bdw then
+					bdw = "-"
+				end
+				devs_info_t[band].cid = cid
+				devs_info_t[band].bdw = bdw
+			else
+				devs_info_t[band].cid = '-'
+				devs_info_t[band].bdw = '-'
+			end	
+		end
 	end
+	return devs_info_t
+end
 
-	local kvmap = {
-		usr = 0,
-		cid = map.channel_id,
-		use = map.channel_use,
-		pow = map.power,
-		max = 23,
-		nos = map.noise,
-		pro = proto,
-		bdw = bandwidth,
-		run = running_map,
-	}
-	
-	if map.users < 0 or map.users > 512 then 
-		reboot_ap_on_error()
+
+local function collect_wifi_ifaces_info(dev)
+	local ifaces_info_t = {}
+	local cmd = string.format("iwinfo | grep %s | awk '{print $1}'", dev)
+	local ifnames = read(cmd, io.popen)
+	if not ifnames then
+		return ifaces_info_t
 	end
-	
-	local map = mf_radio:get("map") or mf_radio:set("map", {}):get("map")
-	map[band] = kvmap
+	for iface in ifnames:gmatch("(.-)\n") do 
+		local s, bssid_cmd, essid_cmd, bitrate_cmd
+		local ath = vap_to_iface(iface)
+		ifaces_info_t[ath] = {}
+		bssid_cmd  = string.format("iwinfo %s info | grep \"Access Point:\" | awk '{print $3}'", iface)
+		s = read(bssid_cmd, io.popen)
+		if s then
+			ifaces_info_t[ath].bssid = s
+		else
+			ifaces_info_t[ath].bssid = "-"
+		end
+		
+		essid_cmd  = string.format("iwinfo wlan0 info | grep ESSID", iface)
+		s = read(essid_cmd, io.popen)
+		if s then
+			local essid = s:match('%s"(.-)"')
+			if essid then
+				ifaces_info_t[ath].essid = essid
+			else
+				ifaces_info_t[ath].essid = "-"
+			end
+			
+		else
+			ifaces_info_t[ath].essid = "-"
+		end
+		
+		bitrate_cmd  = string.format("iwinfo %s info |grep Bit", iface)
+		s = read(bitrate_cmd, io.popen)
+		if s then
+			ifaces_info_t[ath].bitrate = tonumber(s) or "-"
+		else
+			ifaces_info_t[ath].bitrate = "-"
+		end
+	end
+	return ifaces_info_t
+end
+
+
+local function collect_radio_info()
+	local map
+	local ifaces_info_t = {["2g"] = {}, ["5g"] = {}}
+	ifaces_info_t ["2g"] = collect_wifi_ifaces_info(support.get_iface("2g"))
+	ifaces_info_t ["5g"] = collect_wifi_ifaces_info(support.get_iface("5g"))
+	local devs_info_t = collect_wifi_dev_info()
+	--print("ifaces_info_t ", js.encode(ifaces_info_t))
+	--print("devs_info_t", js.encode(devs_info_t))
+	local bands = {"2g", "5g"}
+	for _, band in ipairs(bands) do
+		local kvmap = {
+			usr = 0,
+			cid = devs_info_t[band] and devs_info_t[band].cid or "-",
+			use = 65,
+			pow = devs_info_t[band] and devs_info_t[band].power or "-",
+			max = 23,
+			nos = devs_info_t[band] and devs_info_t[band].nos or "-",
+			pro = devs_info_t[band] and devs_info_t[band].proto or "-",
+			bdw = devs_info_t[band] and devs_info_t[band].bdw or "-",
+			run = ifaces_info_t[band] or {},
+		}
+		map = mf_radio:get("map") or mf_radio:set("map", {}):get("map")
+		map[band] = kvmap
+	end
+	--print("map:", js.encode(map))
 	mf_radio:set("map", map):save()
 end
 
 local function get_radio_info()
 	return mf_radio:get("map")
 end
+
 
 local function update_users(band, users)
 	local map = mf_radio:get("map")
@@ -141,12 +206,15 @@ local function update_users(band, users)
 	map[band].usr = users
 end
 
+
 local function start(cfg)
 	report_cfg = cfg
 	while true do 
-		collect_running_info()
+		if is_debug_enable() then
+			collect_radio_info()
+		end
 		se.sleep(5)
 	end
 end
 
-return {start = start, update_radio = update_radio, get_radio_info = get_radio_info, update_users = update_users}
+return {start = start, get_radio_info = get_radio_info, update_users = update_users}

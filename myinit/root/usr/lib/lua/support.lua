@@ -7,6 +7,8 @@ local s_const = {
 	wl_cfg = "wireless",
 	dev0 = "radio0",
 	dev1 = "radio1",
+	iface0 = "wlan0",
+	iface1 = "wlan1",
 	dev_path_type = "path",
 	wl_cfg_path = "/etc/config/wireless"
 }
@@ -29,6 +31,7 @@ local dev_5g_proto_map = {
 local wl_uci
 --["2g"] = "radioN", ["5g"] = "radioM"
 local s_band_dev_map = {}
+local s_band_iface_map = {}
 local g_band_support = {}
 local s_support_num = 1
 
@@ -89,11 +92,14 @@ local function do_band_dev_map()
 	print(dev0_path, dev1_path)
 	if dev0_path and path_map[dev0_path] then
 		s_band_dev_map[path_map[dev0_path]] = s_const.dev0 
+		s_band_iface_map[path_map[dev0_path]] = s_const.iface0 
 	end
 	if dev1_path and path_map[dev1_path] then
 		s_band_dev_map[path_map[dev1_path]] = s_const.dev1
+		s_band_iface_map[path_map[dev1_path]] = s_const.iface1 
 	end
 	print("band_dev_map:", js.encode(s_band_dev_map))
+	print("band_iface_map:", js.encode(s_band_iface_map))
 	log.debug("support map:%s", js.encode(s_band_dev_map));
 	return true
 end
@@ -159,6 +165,11 @@ local function get_dev(band)
 	return band == "2g" and s_band_dev_map["2g"] or s_band_dev_map["5g"]
 end
 
+local function get_iface(band)
+	assert(band == "2g" or band == "5g")
+	return band == "2g" and s_band_iface_map["2g"] or s_band_iface_map["5g"]
+end
+
 local function get_5g_proto(hw_version)
 	if not hw_version then
 		return nil
@@ -178,6 +189,7 @@ return {
 	init_band_support = init_band_support,
 	get_wifi = get_wifi,
 	get_dev	 = get_dev, 
+	get_iface = get_iface,
 	get_5g_proto = get_5g_proto,
 	--wifi_arr_support = wifi_arr_support,
 	band_arr_support = band_arr_support,
