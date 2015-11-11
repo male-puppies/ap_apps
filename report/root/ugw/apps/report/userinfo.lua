@@ -29,12 +29,12 @@ local function vap_to_iface(vap)
 		prefix = "ath5%03d"
 	end
 	wlanid = vap:match('wlan[01]%-*(%d+)')
-	print(vap,wlanid)
 	if wlanid then
 		wlanid = tonumber(wlanid)
 	else
 		wlanid = 0
 	end
+	print("vap_to_iface:", vap, wlanid)
 	return string.format(prefix, wlanid)
 end
 
@@ -130,7 +130,7 @@ local function collect_ifname_map()
 	for if_line in ifnames:gmatch("(.-)\n") do 
 		local vap_name = if_line:match('%s*(wlan[01]%-*%d*)%s');
 		local essid = if_line:match('%s"(.-)"');
-		print(vap_name , essid)
+		print("collect_ifname_map:",vap_name , essid, if_line)
 		local sta_map , sta_num = {}, 0;
 		local info_cmd = string.format("iwinfo %s assoclist", vap_name);
 		if info_cmd then

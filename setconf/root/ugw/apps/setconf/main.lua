@@ -8,7 +8,8 @@ local const = require("constant")
 local compare = require("compare")
 local support = require("support") 
 local memfile = require("memfile")
-local cfg_commit = require("wl_cfg");
+local cfg_commit = require("wl_cfg")
+local pkey = require("key") 
 
 local keys = const.keys
 local mf_commit = memfile.ins("commit")
@@ -48,6 +49,24 @@ local function get_new_cfg()
 	return map
 end 
 
+local function get_debug_sw(v)
+	if v == "enable" then
+		return 1
+	else
+		return 0
+	end
+end
+
+local function set_g_debug_flag(nmap)
+	local k = pkey.short(keys.c_g_debug)
+	local v = get_debug_sw(nmap[k])
+	if not v or v == 0 then
+		os.execute("rm /tmp/g_debug")
+	else
+		os.execute("touch /tmp/g_debug")
+	end
+end
+
 local function main() 
 	log.setmodule("sf")
 	log.setdebug(true) 
@@ -64,6 +83,7 @@ local function main()
 			log.debug("config change")
 			local nmap = get_new_cfg()
 			if nmap then 
+				set_g_debug_flag(nmap)
 				cfg_commit.check(nmap);
 				reboot.check(nmap)
 			end

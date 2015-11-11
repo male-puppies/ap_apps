@@ -2,6 +2,7 @@ local se = require("se")
 local memfile = require("memfile")
 local radiomode = require("radiomode") 
 local version = require("version")
+local js = require("cjson53.safe")
 
 local report_cfg
 local running_map = {}
@@ -49,7 +50,7 @@ local function start()
 	local _ = mf_basic:get("map") or mf_basic:set("map", {}):get("map")
 	while true do 
 		local map = mf_basic:get("map")
-		if not map.fire or map.fire ~= "-" then
+		if not map.fire or map.fire == "-" then
 			map.fire = get_version()
 		end 
 		map.ip = get_ip()

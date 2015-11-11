@@ -16,6 +16,14 @@ local function read(path, func)
 	return s
 end
 
+local function is_debug_enable()
+	local fp, err=io.open("/tmp/g_debug")
+	if fp then
+		return true
+	else
+		return false
+	end
+end
 
 local function vap_to_wlanid(vap)
 	local wlanid = vap:match('wlan[01]%-*(%d+)')
@@ -86,13 +94,15 @@ local function collect()
 	local self_map = {}
 	for if_line in s:gmatch("(.-)\n") do 
 		local vap_name = if_line:match('%s*(wlan[01]%-*%d*)%s');
+		local essid = if_line:match('%s"(.-)"');
 		if vap_name then
-			local wlanid = vap_to_wlanid(vap_name)
-			wlanid = string.format("%05d", wlanid)
-			self_map[vap_name] = report_cfg[wlanid]
+			-- local wlanid = vap_to_wlanid(vap_name)
+			-- wlanid = string.format("%05d", wlanid)
+			-- self_map[vap_name] = report_cfg[wlanid]
+			self_map[vap_name] = essid
 		end 
 	end
-
+	--print("self_map:",js.encode(self_map))
 	local nap_map, wlan_map = {}, {}
 	for name, essid in pairs(self_map) do 
 		local band = name:find("wlan0") and "2g" or "5g"
@@ -106,7 +116,7 @@ local function collect()
 					if idx == 0 then
 						mac = neigh_line:match('.+Address:%s(%x+:%x+:%x+:%x+:%x+:%x+)')
 					elseif idx == 1 then
-						ssid = neigh_line:match('ESSID:%s"(%S+)"')
+						ssid = neigh_line:match('ESSID:%s"(.-)"') or "unknown"
 					elseif idx == 2 then
 						chan = neigh_line:match('Channel:%s(%d+)')
 					elseif idx == 3 then	
@@ -114,7 +124,7 @@ local function collect()
 					end
 					
 					if idx == 5 then
-						print(mac, ssid, chan, rssi)
+						--print(mac, ssid, chan, rssi)
 						if ssid then
 							local band_map = wlan_map[band] or {}
 							band_map[ssid] = {bd = mac, sd = ssid, ch = chan, rs = rssi}
@@ -126,9 +136,9 @@ local function collect()
 								nap_map[band] = tmp
 							end 
 						end 
-						idx = 0;
+						idx = 0
 					else
-						idx = idx + 1;
+						idx = idx + 1
 					end
 				end
 			end
@@ -169,7 +179,10 @@ end
 local function start(cfg)
 	report_cfg = cfg
 	while true do 
-		collect()
+		local debug = is_debug_enable()
+		if debug then
+			collect()
+		end
 		se.sleep(10)
 	end 
 end

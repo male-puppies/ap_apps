@@ -17,6 +17,15 @@ local function read(path, func)
 	return s
 end
 
+local function is_debug_enable()
+	local fp, err=io.open("/tmp/g_debug")
+	if fp then
+		return true
+	else
+		return false
+	end
+end
+
 local function collect_running_info()
 	local s = read("iwinfo 2>/dev/null", io.popen)
 	if not s then 

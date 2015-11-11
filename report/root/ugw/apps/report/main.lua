@@ -81,7 +81,7 @@ local function get_apid()
 end
 
 local function reload()
-	local path = "/ugwconfig/etc/ap/ap_config.json"
+	local path = "/etc/config/ap_config.json"
 	local s = read(path)
 	if not s then 
 		return false 

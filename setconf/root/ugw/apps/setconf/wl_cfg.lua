@@ -296,6 +296,22 @@ local function set_userdata_section(map)
 	return true
 end
 
+local function  del_ano_wifi_iface_sections()
+	local s  = read("iwinfo | grep wlan | wc -l", io.popen)
+	if not s then
+		return 
+	end
+	local num = tonumber(s) or 0
+	if num > 0 then
+		local idx = num - 1
+		for i = 0, num do
+			local cmd = string.format("uci delete wireless.@wifi-iface[%d]", idx)
+			os.execute(cmd)
+			idx = idx - 1
+		end
+		print("del ", num, "ano vaps totally.")
+	end
+end
 
 local function del_wifi_iface_sections()
 	local vapname
@@ -322,7 +338,8 @@ local function del_wifi_iface_sections()
 			print("del ", vapname)
 		end
 	end
-	print("del ", cnt_5g + cnt_2g , "vaps totally.")
+	print("del ", cnt_5g + cnt_2g , "named vaps totally.")
+	del_ano_wifi_iface_sections()
 end
 
 
