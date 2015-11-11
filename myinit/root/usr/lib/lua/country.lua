@@ -2,7 +2,7 @@ local log = require("log")
 local country
 
 local country_map = {
-	["China"]			=	{code = 156, short = "China"},
+	["China"]			=	{code = 156, short = "CN"},
 	["US"]				=  	{code = 840, short = "US"},
 	["Japan"]			=	{code = 392, short = "JP"},
 	["South Korea"]		=	{code = 410, short = "KR"},
