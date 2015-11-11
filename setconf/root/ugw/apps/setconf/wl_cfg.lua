@@ -64,8 +64,8 @@ local function get_channel(v)
 	if v:upper() == "AUTO" then 
 		return "auto"
 	end 
-
-	return tonumber(v)
+	return v
+	--return tonumber(v)
 end
 
 
@@ -297,7 +297,7 @@ local function set_userdata_section(map)
 end
 
 local function  del_ano_wifi_iface_sections()
-	local s  = read("iwinfo | grep wlan | wc -l", io.popen)
+	local s  = read("cat /etc/config/wireless | grep wifi-iface | wc -l", io.popen)
 	if not s then
 		return 
 	end
@@ -311,8 +311,10 @@ local function  del_ano_wifi_iface_sections()
 		end
 		print("del ", num, "ano vaps totally.")
 	end
+	os.execute("uci commit wireless")
 end
 
+--[[
 local function del_wifi_iface_sections()
 	local vapname
 	local cnt_2g, cnt_5g = 0, 0
@@ -341,7 +343,7 @@ local function del_wifi_iface_sections()
 	print("del ", cnt_5g + cnt_2g , "named vaps totally.")
 	del_ano_wifi_iface_sections()
 end
-
+--]]
 
 local function create_wifi_dev_sections()
 	for _, band in ipairs(support.band_arr_support()) do
@@ -352,17 +354,31 @@ local function create_wifi_dev_sections()
 		cfg_map = wifi_dev_cfg[wifi_dev]
 		if cfg_map then
 			print("create section ", wifi_dev)
-			--wl_uci:add(s_const.config,  s_const.dev_t)
-			wl_uci:set(s_const.config, wifi_dev, s_const.dev_t)
-			--wl_uci:set(s_const.config, wifi_dev, "type", "mac80211")
-			wl_uci:set(s_const.config, wifi_dev, "country", cfg_map["country"])
-			wl_uci:set(s_const.config, wifi_dev, "disabled", cfg_map["disabled"])
-			wl_uci:set(s_const.config, wifi_dev, "hwmode", cfg_map["hwmode"])
-			wl_uci:set(s_const.config, wifi_dev, "htmode", cfg_map["htmode"])
-			wl_uci:set(s_const.config, wifi_dev, "channel", cfg_map["channel"])
-			wl_uci:set(s_const.config, wifi_dev, "txpower", cfg_map["txpower"])
+			-- --wl_uci:add(s_const.config,  s_const.dev_t)
+			-- wl_uci:set(s_const.config, wifi_dev, s_const.dev_t)
+			-- --wl_uci:set(s_const.config, wifi_dev, "type", "mac80211")
+			-- wl_uci:set(s_const.config, wifi_dev, "country", cfg_map["country"])
+			-- wl_uci:set(s_const.config, wifi_dev, "disabled", cfg_map["disabled"])
+			-- wl_uci:set(s_const.config, wifi_dev, "hwmode", cfg_map["hwmode"])
+			-- wl_uci:set(s_const.config, wifi_dev, "htmode", cfg_map["htmode"])
+			-- wl_uci:set(s_const.config, wifi_dev, "channel", cfg_map["channel"])
+			-- wl_uci:set(s_const.config, wifi_dev, "txpower", cfg_map["txpower"])
+
+			local cmds ={}
+			cmds["dev"] = string.format("uci set wireless.%s=%s", wifi_dev, s_const.dev_t)
+			cmds["country"] = string.format("uci set wireless.%s.country=%s", wifi_dev, cfg_map["country"])
+			cmds["disabled"] = string.format("uci set wireless.%s.disabled=%d", wifi_dev, cfg_map["disabled"])
+			cmds["hwmode"] = string.format("uci set wireless.%s.hwmode=%s", wifi_dev, cfg_map["hwmode"])
+			cmds["htmode"] = string.format("uci set wireless.%s.htmode=%s", wifi_dev, cfg_map["htmode"])
+			cmds["channel"] = string.format("uci set wireless.%s.channel=%s", wifi_dev, cfg_map["channel"])
+			cmds["txpower"] = string.format("uci set wireless.%s.txpower=%d", wifi_dev, cfg_map["txpower"])
+			for key, cmd in pairs(cmds) do
+				--print(key, cmd)
+				os.execute(cmd)
+			end
 		end
 	end
+	os.execute("uci commit wireless")
 	print("create_wifi_dev_sections")
 end
 
@@ -403,15 +419,32 @@ local function create_wifi_iface_sections()
 				cnt_5g = cnt_5g + 1
 			end
 			print("create vap:", vap_name)
-			wl_uci:set(s_const.config, vap_name, s_const.iface_t)
-			wl_uci:set(s_const.config, vap_name, "device", dev) 
-			wl_uci:set(s_const.config, vap_name, "disabled", if_cfg["disabled"]) 
-			wl_uci:set(s_const.config, vap_name, "hidden", if_cfg["hidden"]) 
-			wl_uci:set(s_const.config, vap_name, "ssid", if_cfg["ssid"]) 
-			wl_uci:set(s_const.config, vap_name, "encryption", if_cfg["encryption"])
-			wl_uci:set(s_const.config, vap_name, "key", if_cfg["key"])
-			wl_uci:set(s_const.config, vap_name, "network", "lan")
-			wl_uci:set(s_const.config, vap_name, "mode", "ap")
+			local idx = -1
+			local cmds = {}
+			table.insert(cmds, string.format("uci add wireless wifi-iface"))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].device='%s'", dev))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].disabled='%d'", if_cfg["disabled"]))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].hidden='%d'", if_cfg["hidden"]))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].ssid='%s'", if_cfg["ssid"]))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].encryption='%s'", if_cfg["encryption"]))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].key='%s'", if_cfg["key"]))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].network='lan'"))
+			table.insert(cmds, string.format("uci set wireless.@wifi-iface[-1].mode='ap'"))
+			--excute in order
+			for i, cmd in ipairs(cmds) do
+				--print(i, cmd)
+				os.execute(cmd)
+			end
+			os.execute("uci commit wireless")
+			-- wl_uci:set(s_const.config, vap_name, s_const.iface_t)
+			-- wl_uci:set(s_const.config, vap_name, "", dev) 
+			-- wl_uci:set(s_const.config, vap_name, "", ) 
+			-- wl_uci:set(s_const.config, vap_name, "", ) 
+			-- wl_uci:set(s_const.config, vap_name, "", ) 
+			-- wl_uci:set(s_const.config, vap_name, "", )
+			-- wl_uci:set(s_const.config, vap_name, "", )
+			-- wl_uci:set(s_const.config, vap_name, "", "lan")
+			-- wl_uci:set(s_const.config, vap_name, "mode", "ap")
 		end
 		wifi_devs = {}
 	end
@@ -421,7 +454,8 @@ end
 
 
 local function  commit_to_file()
-	wl_uci:commit(s_const.config)	--save to /etc/config/wireless
+	--wl_uci:commit(s_const.config)	--save to /etc/config/wireless
+	os.execute("uci commit wireless")
 	print("commit_to_file")
 end
 
@@ -433,7 +467,7 @@ end
 
 
 local function wl_cfg_commit()
-	del_wifi_iface_sections()
+	del_ano_wifi_iface_sections()
 	create_wifi_dev_sections()
 	create_wifi_iface_sections()
 	commit_to_file()
