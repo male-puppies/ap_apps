@@ -9,7 +9,7 @@ local s_const = {
 	dev1 = "radio1",
 	iface0 = "wlan0",
 	iface1 = "wlan1",
-	dev_path_type = "path",
+	dev_path_type = "path", --type name of dev path in wifi-device section
 	wl_cfg_path = "/etc/config/wireless"
 }
 
@@ -26,7 +26,6 @@ local dev_5g_proto_map = {
 	["LG9563"] = "11ac",
 	--new dev add here
 }
-
 
 local wl_uci
 --["2g"] = "radioN", ["5g"] = "radioM"
@@ -45,7 +44,6 @@ local function read(path, func)
 	fp:close()
 	return s
 end
-
 
 local function init()
 	wl_uci = uci.cursor()
@@ -72,24 +70,24 @@ local function get_support_num()
 	return true
 end
 
-
+--des: constructing map between wifi devices and "2g&5g"; wifi-ifaces and "3g&5g"
 local function do_band_dev_map()
 	print("do_band_dev_map")
 	local valid, hw_version = version.get_hw_version()
 	if not valid then
 		log.error("Get hw version failed.")
-		print("Get hw version failed.")
+		--print("Get hw version failed.")
 		return false
 	end
 	local path_map  = s_platform_path_map[hw_version]
 	if not path_map then
 		log.error("Nonsupport hardware %s.", hw_version)
-		print("Nonsupport hardware", hw_version);
+		--print("Nonsupport hardware", hw_version);
 		return false
 	end
 	local dev0_path = wl_uci:get(s_const.wl_cfg, s_const.dev0, s_const.dev_path_type)
 	local dev1_path = wl_uci:get(s_const.wl_cfg, s_const.dev1, s_const.dev_path_type)
-	print(dev0_path, dev1_path)
+	--print(dev0_path, dev1_path)
 	if dev0_path and path_map[dev0_path] then
 		s_band_dev_map[path_map[dev0_path]] = s_const.dev0 
 		s_band_iface_map[path_map[dev0_path]] = s_const.iface0 
@@ -98,14 +96,13 @@ local function do_band_dev_map()
 		s_band_dev_map[path_map[dev1_path]] = s_const.dev1
 		s_band_iface_map[path_map[dev1_path]] = s_const.iface1 
 	end
-	print("band_dev_map:", js.encode(s_band_dev_map))
-	print("band_iface_map:", js.encode(s_band_iface_map))
+	--print("band_dev_map:", js.encode(s_band_dev_map))
+	--print("band_iface_map:", js.encode(s_band_iface_map))
 	log.debug("support map:%s", js.encode(s_band_dev_map));
 	return true
 end
 
-
--- 2g对应wlan0， 5g对应wlan1
+--dev map iface
 local function init_band_support()
 	g_band_support = {}
 	if not init() then
@@ -126,6 +123,14 @@ local function init_band_support()
 	return true
 end
 
+
+local function is_support_band(band)
+	if g_band_support[band] then
+		return true
+	end
+	return false
+end
+
 local function band_arr_support()
 	local arr = {}
 	for band in pairs(g_band_support) do 
@@ -138,6 +143,7 @@ local function band_map_support()
 	return g_band_support
 end
 
+
 local function band_map_not_support()
 	local not_support_map = {["2g"] = 1, ["5g"] = 1}
 	for band in pairs(g_band_support) do 
@@ -146,30 +152,22 @@ local function band_map_not_support()
 	return  not_support_map
 end
 
---[[
-local function wifi_arr_support()
-	local arr = {}
-	local _ = g_band_support["2g"] and table.insert(arr, "wlan0")
-	local _ = g_band_support["5g"] and table.insert(arr, "wlan1")
-	return arr
-end
-]]--
-
-local function get_wifi(band)
+--Input:2g or 5g
+--Output: radio0 or radio1
+local function get_wifi_dev(band)
 	assert(band == "2g" or band == "5g")
 	return band == "2g" and s_band_dev_map["2g"] or s_band_dev_map["5g"]
 end
 
-local function get_dev(band)
-	assert(band == "2g" or band == "5g")
-	return band == "2g" and s_band_dev_map["2g"] or s_band_dev_map["5g"]
-end
-
-local function get_iface(band)
+--Input:2g or 5g
+--Output: wlan0 or wlan1
+local function get_base_iface(band)
 	assert(band == "2g" or band == "5g")
 	return band == "2g" and s_band_iface_map["2g"] or s_band_iface_map["5g"]
 end
 
+--Input:hardware version
+--Output:5g or 11ac (for compatible) 
 local function get_5g_proto(hw_version)
 	if not hw_version then
 		return nil
@@ -177,22 +175,53 @@ local function get_5g_proto(hw_version)
 	return dev_5g_proto_map[hw_version]
 end
 
-local function is_support_band(band)
-	if g_band_support[band] then
-		return true
+--Input:wlan0,wlan1,wlan0-1,wlan1-1
+--Output:ath2xxx, ath5xxx
+local function iface_to_vap(iface)
+	local prefix, wlanid
+	local iface_2g = get_base_iface("2g")
+	local iface_5g = get_base_iface("5g")
+	if iface:find(iface_2g) then
+		prefix = "ath2%03d"
+	elseif iface:find(iface_5g) then
+		prefix = "ath5%03d"
 	end
-	return false
+	wlanid = iface:match('wlan[01]%-*(%d+)')
+	if wlanid then
+		wlanid = tonumber(wlanid)
+	else
+		wlanid = 0
+	end
+	--print("iface_to_vap:",iface, wlanid)
+	return string.format(prefix, wlanid)
 end
 
+--Input:wlan0,wlan1,wlan0-1,wlan1-1
+--Output:2g, 5g
+local function iface_to_band(iface)
+	if not iface then
+		return nil
+	end
+	local iface_2g = get_base_iface("2g")
+	local iface_5g = get_base_iface("5g")
+	print(iface_2g, iface_5g)
+	if iface:find(iface_2g) then
+		return "2g"
+	elseif iface:find(iface_5g) then
+		return "5g"
+	end
+	return nil
+end
 
 return {
 	init_band_support = init_band_support,
-	get_wifi = get_wifi,
-	get_dev	 = get_dev, 
-	get_iface = get_iface,
-	get_5g_proto = get_5g_proto,
-	--wifi_arr_support = wifi_arr_support,
 	band_arr_support = band_arr_support,
 	band_map_support = band_map_support,
 	band_map_not_support = band_map_not_support, 
+	get_wifi_dev = get_wifi_dev, 
+	get_base_iface = get_base_iface,
+	get_5g_proto = get_5g_proto,
+	iface_to_vap = iface_to_vap,
+	iface_to_band = iface_to_band,
+	is_support_band = is_support_band,
 }
