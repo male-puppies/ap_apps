@@ -119,7 +119,7 @@ local function wifi_dev_cfg_parse(map)
 	for _, band in ipairs(support.band_arr_support()) do 
 		kvmap = {}
 		print(band)
-		dev = support.get_dev(band)
+		dev = support.get_wifi_dev(band)
 
 		local k = pkey.short(keys.c_g_country)
 		local v = country.short(map[k])  	assert(v)
@@ -349,7 +349,7 @@ local function create_wifi_dev_sections()
 	for _, band in ipairs(support.band_arr_support()) do
 		local wifi_dev, cfg_map
 
-		wifi_dev = support.get_dev(band)
+		wifi_dev = support.get_wifi_dev(band)
 		print("wifi:",wifi_dev)
 		cfg_map = wifi_dev_cfg[wifi_dev]
 		if cfg_map then
@@ -388,8 +388,8 @@ local function create_wifi_iface_sections()
 	local vap_name = "vap"	--vap2001, vap5002
 	local userdata = {}
 	local band_support = support.band_map_support()
-	local dev_2g = support.get_dev("2g")
-	local dev_5g = support.get_dev("5g")
+	local dev_2g = support.get_wifi_dev("2g")
+	local dev_5g = support.get_wifi_dev("5g")
 	for _, if_cfg in pairs(wifi_iface_cfg) do
 		local wifi_devs = {}
 		if if_cfg.type == 1 then

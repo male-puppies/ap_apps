@@ -61,9 +61,9 @@ local function set_g_debug_flag(nmap)
 	local k = pkey.short(keys.c_g_debug)
 	local v = get_debug_sw(nmap[k])
 	if not v or v == 0 then
-		os.execute("rm /tmp/g_debug")
+		os.execute("rm /tmp/ugw/g_debug")
 	else
-		os.execute("touch /tmp/g_debug")
+		os.execute("touch /tmp/ugw/g_debug")
 	end
 end
 
