@@ -104,6 +104,8 @@ local const = {
 
 	ap_config = 				config_dir .. "/ap_config.json", 
 	default_config = 			arch.default_cfg(), 
+	ap_debug_flag = 			"/tmp/ugw/g_debug", -- global debug switch for ap
+	ap_scan_dir = 				"/tmp/ugw/scan/",	-- scan info file for ap
 }
 
 local function check_part(p)
