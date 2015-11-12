@@ -59,7 +59,6 @@ local function on_message(map)
 			end 
 		end
 	end
-	
 	pcli:request("a/ac/report", {group, g_apid, kvmap})
 end
 

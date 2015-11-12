@@ -3,6 +3,7 @@ local memfile = require("memfile")
 local radiomode = require("radiomode") 
 local js = require("cjson53.safe")
 local support = require("support")
+local const = require("constant")
 
 local report_cfg
 local running_map = {}
@@ -20,7 +21,7 @@ local function read(path, func)
 end
 
 local function is_debug_enable()
-	local fp, err = io.open("/tmp/g_debug")
+	local fp, err = io.open(const.ap_debug_flag)
 	if fp then
 		return true
 	else
@@ -31,8 +32,8 @@ end
 --wlan0,wlan1,wlan0-1,wlan1-1
 local function vap_to_iface(vap)
 	local prefix, wlanid
-	local iface_2g = support.get_iface("2g")
-	local iface_5g = support.get_iface("5g")
+	local iface_2g = support.get_base_iface("2g")
+	local iface_5g = support.get_base_iface("5g")
 	if vap:find(iface_2g) then
 		prefix = "ath2%03d"
 	elseif vap:find(iface_5g) then
@@ -69,7 +70,7 @@ local function collect_wifi_dev_info()
 	local devs_info_t = {["2g"] = {}, ["5g"] = {}}
 	local bands = {"2g", "5g"}
 	for _, band in ipairs(bands) do
-		local dev = support.get_iface(band)
+		local dev = support.get_base_iface(band)
 		if dev then
 			local s, power_cmd, proto_cmd, nos_cmd, iw_cmd
 			power_cmd = string.format("iwinfo %s info | grep Tx-Power | awk '{print $2}' 2>&1", dev)
@@ -129,14 +130,14 @@ local function collect_wifi_ifaces_info(dev)
 	end
 	for iface in ifnames:gmatch("(.-)\n") do 
 		local s, bssid_cmd, essid_cmd, bitrate_cmd
-		local ath = vap_to_iface(iface)
-		ifaces_info_t[ath] = {}
+		local vap_name = support.iface_to_vap(iface)
+		ifaces_info_t[vap_name] = {}
 		bssid_cmd  = string.format("iwinfo %s info | grep \"Access Point:\" | awk '{print $3}'", iface)
 		s = read(bssid_cmd, io.popen)
 		if s then
-			ifaces_info_t[ath].bssid = s
+			ifaces_info_t[vap_name].bssid = s
 		else
-			ifaces_info_t[ath].bssid = "-"
+			ifaces_info_t[vap_name].bssid = "-"
 		end
 		
 		essid_cmd  = string.format("iwinfo wlan0 info | grep ESSID", iface)
@@ -144,21 +145,21 @@ local function collect_wifi_ifaces_info(dev)
 		if s then
 			local essid = s:match('%s"(.-)"')
 			if essid then
-				ifaces_info_t[ath].essid = essid
+				ifaces_info_t[vap_name].essid = essid
 			else
-				ifaces_info_t[ath].essid = "-"
+				ifaces_info_t[vap_name].essid = "-"
 			end
 			
 		else
-			ifaces_info_t[ath].essid = "-"
+			ifaces_info_t[vap_name].essid = "-"
 		end
 		
 		bitrate_cmd  = string.format("iwinfo %s info |grep Bit", iface)
 		s = read(bitrate_cmd, io.popen)
 		if s then
-			ifaces_info_t[ath].bitrate = tonumber(s) or "-"
+			ifaces_info_t[vap_name].bitrate = tonumber(s) or "-"
 		else
-			ifaces_info_t[ath].bitrate = "-"
+			ifaces_info_t[vap_name].bitrate = "-"
 		end
 	end
 	return ifaces_info_t
@@ -168,8 +169,8 @@ end
 local function collect_radio_info()
 	local map
 	local ifaces_info_t = {["2g"] = {}, ["5g"] = {}}
-	ifaces_info_t ["2g"] = collect_wifi_ifaces_info(support.get_iface("2g"))
-	ifaces_info_t ["5g"] = collect_wifi_ifaces_info(support.get_iface("5g"))
+	ifaces_info_t ["2g"] = collect_wifi_ifaces_info(support.get_base_iface("2g"))
+	ifaces_info_t ["5g"] = collect_wifi_ifaces_info(support.get_base_iface("5g"))
 	local devs_info_t = collect_wifi_dev_info()
 	--print("ifaces_info_t ", js.encode(ifaces_info_t))
 	--print("devs_info_t", js.encode(devs_info_t))

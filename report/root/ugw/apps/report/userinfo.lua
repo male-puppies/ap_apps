@@ -9,6 +9,7 @@ local mf_user = memfile.ins("user_info")
 local g_apid, report_cfg
 local collect_interval = 5
 
+
 local function read(path, func)
 	func = func and func or io.open
 	local fp = func(path, "rb")
@@ -20,25 +21,6 @@ local function read(path, func)
 	return s
 end
 
---wlan0,wlan1,wlan0-1,wlan1-1
-local function vap_to_iface(vap)
-	local prefix, wlanid
-	local iface_2g = support.get_iface("2g")
-	local iface_5g = support.get_iface("5g")
-	if vap:find(iface_2g) then
-		prefix = "ath2%03d"
-	elseif vap:find(iface_5g) then
-		prefix = "ath5%03d"
-	end
-	wlanid = vap:match('wlan[01]%-*(%d+)')
-	if wlanid then
-		wlanid = tonumber(wlanid)
-	else
-		wlanid = 0
-	end
-	--print("vap_to_iface:", vap, wlanid)
-	return string.format(prefix, wlanid)
-end
 
 local function get_ifname(bssid)
 	local bssid_map = mf_user:get("bssid") or mf_user:set("bssid", {}):get("bssid")
@@ -49,16 +31,14 @@ local function get_ifname(bssid)
 	if not s then 
 		return 
 	end
-
 	s = s:gsub("%s+Mode:", "\b")
-	
 	local nmap = {}
 	for line in s:gmatch("(.-)\n") do 
-		local vap_name, mac = line:match("(wlan[01]%-*%d*).+Point: (.-)%s")
-		if vap_name then 
-			local ifname = vap_to_iface(vap_name)
-			if ifname then
-				nmap[mac:lower()] = ifname
+		local ifname, mac = line:match("(wlan[01]%-*%d*).+Point: (.-)%s")
+		if ifname then 
+			local vap_name = support.iface_to_vap(ifname)
+			if vap_name then
+				nmap[mac:lower()] = vap_name
 			end
 		end 
 	end 
@@ -67,6 +47,7 @@ local function get_ifname(bssid)
 
 	return nmap[bssid]
 end
+
 
 local function update_user(map)
 	assert(map and #map.mac == 17 and #map.bssid == 17)
@@ -130,17 +111,17 @@ local function collect_ifname_map()
 	local ifname_map = {}
 	--process one vap per loop
 	for if_line in ifnames:gmatch("(.-)\n") do 
-		local vap_name = if_line:match('%s*(wlan[01]%-*%d*)%s');
+		local iface = if_line:match('%s*(wlan[01]%-*%d*)%s');
 		local essid = if_line:match('%s"(.-)"');
-		--print("collect_ifname_map:",vap_name , essid, if_line)
-		local sta_map , sta_num = {}, 0;
-		local info_cmd = string.format("iwinfo %s assoclist", vap_name);
+		--print("collect_ifname_map:",iface , essid, if_line)
+		local sta_map , sta_num = {}, 0
+		local info_cmd = string.format("iwinfo %s assoclist", iface);
 		if info_cmd then
 			local assoclist  = read(info_cmd, io.popen);
 			if assoclist then
 				local idx, sta_cnt = 0, 0;
 				sta_num = get_sta_num(assoclist);
-				print("sta_num:",sta_num)
+				--print("sta_num:",sta_num)
 				if sta_num > 0 then
 					--everyp user info include three lines valid info and one blank line
 					local mac, snr, rxq, txq
@@ -154,10 +135,10 @@ local function collect_ifname_map()
 							txq = sta_line:match('MHz%s+(%d+)%sPkts');
 						end 
 						if idx == 3 then
-							print(mac, snr, rxq, txq, essid)
+							--print(mac, snr, rxq, txq, essid)
 							if mac then
-								local iface = vap_to_iface(vap_name) or "-"
-								sta_map[mac] = {rssi = tonumber(snr), txq = tonumber(txq), rxq = tonumber(rxq), ssid = iface};
+								local vap = support.iface_to_vap(iface) or "-" --ath2xxx, ath5xxx
+								sta_map[mac] = {rssi = tonumber(snr), txq = tonumber(txq) or 0, rxq = tonumber(rxq) or 0, ssid = vap};
 							end
 							idx = 0;
 						else
@@ -168,7 +149,7 @@ local function collect_ifname_map()
 				end
 			end
 		end
-		ifname_map[vap_name] = sta_map;
+		ifname_map[iface] = sta_map;
 	end
 	return ifname_map
 end
@@ -204,7 +185,8 @@ local function get_user_info(step)
 
 	local band_map = {}
 	for name, map in pairs(cmap) do
-		local band = name:find("^wlan0$") and "2g" or (name:find("^wlan1$") and "5g" or nil)
+		local band = support.iface_to_band(name)
+		print("band", band, name)
 		if band then 
 			local arr = get_band_arr(name, map)
 			--band_map[band] = arr
